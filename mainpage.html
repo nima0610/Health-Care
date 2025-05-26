@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    
+    <link rel="stylesheet" href="styles.css" />
+    <title>HealthCare</title>
+  </head>
+
+  <body>
+     <header>
+      <nav>
+        <div class="nav__header">
+          <div class="nav__logo">
+            <a href="#" class="logo">
+              <img src="assets/sthethoscope.jpeg" alt="logo" class="logo-dark" />
+              <span>HealthCare System</span>
+            </a>
+          </div>
+          <div class="nav__menu__btn" id="menu-btn">
+            <i class="ri-menu-line"></i>
+          </div>
+        </div>
+        
+        <div class="nav__btns">
+          <a href="index.html"><button class="btn">SignOut</button></a>
+        </div>
+      </nav>
+     </header>
+
+     
+       <div class="options-container">
+         <button id="ai-chat-btn" class="option-btn">AI Chat Assistant</button>
+         <button id="connect-pro-btn" class="option-btn">Connect with professional</button>
+       
+     </div>
+
+     <div id="ai-chat-options" class="hidden options-content">
+       <div class="sub-buttons-wrapper">
+         <button class="sub-btn first-aid-btn">First Aid Recovery</button>
+         <button class="sub-btn analyze-btn">Analyze Symptoms</button>
+       </div>
+     </div>
+
+    <div class="chat-container">
+    <div id="chatbox" class="chat-box"></div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Type your message..." />
+      <button onclick="getResponse()">Send</button>
+    </div>
+  </div>
+  <script src="chatbot.js"></script>
+<style>
+  /* Remove default margin/padding from body and header to remove gap */
+  body, header {
+    margin: 0;
+    padding: 0;
+  }
+
+  .options-background {
+    background-color: #f0f4ff; /* light blue background */
+    padding: 20px 0;
+    width: 100vw;
+    box-sizing: border-box;
+    margin: 0; /* remove any margin */
+  }
+
+  .options-container {
+    max-width: 900px; /* adjust as needed */
+    margin: 0 auto;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+
+  .option-btn {
+    padding: 12px 20px;
+    background-color: #6f6af8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    min-width: 180px;
+    text-align: center;
+  }
+
+  .option-btn:hover {
+    background-color: #5149f4;
+  }
+
+  .options-content {
+    margin: 20px;
+    font-size: 1.1rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .sub-buttons-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 10px;
+  }
+
+  .sub-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+  }
+
+  .first-aid-btn {
+    background-color: #e63946; /* red */
+  }
+
+  .first-aid-btn:hover {
+    background-color: #b8323b;
+  }
+
+  .analyze-btn {
+    background-color: #2a9d8f; /* teal */
+  }
+
+  .analyze-btn:hover {
+    background-color: #20786c;
+  }
+</style>
+
+<script>
+  const aiChatBtn = document.getElementById('ai-chat-btn');
+  const connectProBtn = document.getElementById('connect-pro-btn');
+  const aiChatOptions = document.getElementById('ai-chat-options');
+  const connectProOptions = document.getElementById('connect-pro-options');
+
+  aiChatBtn.addEventListener('click', () => {
+    aiChatOptions.style.display = 'block';
+    connectProOptions.style.display = 'none';
+  });
+
+  connectProBtn.addEventListener('click', () => {
+    connectProOptions.style.display = 'block';
+    aiChatOptions.style.display = 'none';
+  });
+</script>
+
+  </body>
+</html>
