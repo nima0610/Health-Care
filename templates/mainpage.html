@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>HealthCares</title>
+    <style>
+      body, header {
+        margin: 0;
+        padding: 0;
+      }
+
+      .symptoms-container {
+        width: 100vw;
+        margin: 20px 0 10px 0;
+        padding: 15px 20px;
+        background: #e3f2fd;
+        border-radius: 0;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.15);
+        font-size: 1.1rem;
+        color: #0d47a1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .symptom-item {
+        background-color: #2196f3;
+        color: white;
+        padding: 8px 14px;
+        border-radius: 20px;
+        box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+        user-select: none;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+        cursor: pointer; /* pointer to indicate clickable */
+      }
+
+      .symptom-item:hover {
+        background-color: #1565c0;
+      }
+
+      .chat-container {
+        max-width: 800px;
+        margin: 20px auto 40px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+      }
+
+      .chat-box {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+      }
+
+      .input-area {
+        display: flex;
+        gap: 10px;
+      }
+
+      .input-area input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+      }
+
+      .input-area button {
+        padding: 10px 20px;
+        background-color: #6f6af8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .input-area button:hover {
+        background-color: #5149f4;
+      }
+
+      .message {
+        margin-bottom: 10px;
+      }
+
+      .message strong {
+        color: #333;
+      }
+
+      nav {
+        background: #fff;
+        padding: 10px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      .nav__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .nav__logo a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #333;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+
+      .nav__logo img {
+        width: 30px;
+        height: 30px;
+        margin-right: 8px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .nav__btns .btn {
+        background-color: #6f6af8;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .nav__btns .btn:hover {
+        background-color: #5149f4;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="nav__header">
+          <div class="nav__logo">
+            <a href="#" class="logo">
+              <img src="{{ url_for('static', filename='assets/sthethoscope.jpeg') }}" alt="Example Image" />
+              <span>HealthCare System</span>
+            </a>
+          </div>
+          <div class="nav__menu__btn" id="menu-btn">
+            <i class="ri-menu-line"></i>
+          </div>
+        </div>
+
+        <div class="nav__btns">
+          <a href="{{ url_for('indexx') }}" class="btn">Home</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Symptoms list full width above chatbot -->
+    <div class="symptoms-container" aria-label="Common Symptoms">
+      <div class="symptom-item">Fever</div>
+      <div class="symptom-item">Headache</div>
+      <div class="symptom-item">Eye Pain</div>
+      <div class="symptom-item">Cough</div>
+      <div class="symptom-item">Sneezing</div>
+      <div class="symptom-item">Nasal Congestion</div>
+      <div class="symptom-item">Sore Throat</div>
+      <div class="symptom-item">Runny Nose</div>
+      <div class="symptom-item">Fatigue</div>
+      <div class="symptom-item">Body Ache</div>
+      <div class="symptom-item">Joint Pain</div>
+      <div class="symptom-item">Diarrhea</div>
+      <div class="symptom-item">Vomiting</div>
+      <div class="symptom-item">Abdominal Pain</div>
+      <div class="symptom-item">Nausea</div>
+      <div class="symptom-item">Rash</div>
+      <div class="symptom-item">Shortness of Breath</div>
+      <div class="symptom-item">Loss of Taste and Smell</div>
+    </div>
+
+    <div class="chat-container">
+      <div id="chatbox" class="chat-box"></div>
+      <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button id="sendBtn">Send</button>
+        <button id="clearBtn" type="button">Clear</button>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+
+    <script>
+      // When a symptom pill is clicked, add it to the chat input box.
+      document.querySelectorAll('.symptom-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const input = document.getElementById('userInput');
+          const symptom = item.textContent;
+
+          if (input.value.trim() === '') {
+            input.value = symptom;
+          } else {
+            // Avoid duplicate symptom entries
+            const currentSymptoms = input.value.split(',').map(s => s.trim().toLowerCase());
+            if (!currentSymptoms.includes(symptom.toLowerCase())) {
+              input.value += ', ' + symptom;
+            }
+          }
+          input.focus();
+        });
+      });
+    </script>
+  </body>
+</html>

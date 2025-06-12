@@ -11,7 +11,7 @@
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>HealthCare</title>
   </head>
   <body>
@@ -20,7 +20,7 @@
         <div class="nav__header">
           <div class="nav__logo">
             <a href="#" class="logo">
-              <img src="assets/sthethoscope.jpeg" alt="logo" class="logo-dark" />
+              <img src="{{ url_for('static', filename='assets/sthethoscope.jpeg') }}" alt="Example Image">
               <span>HealthCare System</span>
             </a>
           </div>
@@ -30,17 +30,17 @@
         </div>
         <ul class="nav__links" id="nav-links">
           <li><a href="#choose">About Us</a></li>
+          <li><a href="#ayohai">Features</a></li>
           <li><a href="#client">Reviews</a></li>
           <li><a href="#client">Reviews</a></li>
         </ul>
         <div class="nav__btns">
-          <a href="templates/mainpage.html"><button class="btn">Chatbot</button></a>
-          <a href="templates/index.html"><button class="btn">Diabetes Prediction</button></a>
+          <a href="mainpage.html"><button class="btn">LogOut</button></a>
         </div>
       </nav>
       <div class="header__container" id="home">
         <div class="header__image">
-          <img src="assets/ggw.gif" alt="header" />
+          <img src="{{ url_for('static', filename='assets/ggw.gif') }}" alt="Example Image">
         </div>
         <div class="header__content">
           <h2>Cure the disease, heal the life.</h2>
@@ -100,8 +100,29 @@
     </div>
   </div>
 </div>
-
     </section>
+
+    <section class="features-section" id="ayohai">
+  <h2 class="features-heading">Features</h2>
+  <div class="features-grid">
+  <div class="feature-card">
+  <h3>Symptom Analysis</h3>
+  <p>Check possible diseases based on symptoms.</p>
+  <a href="{{ url_for('mainpage') }}" class="feature-btn">Explore</a>
+</div>
+    <div class="feature-card">
+      <h3>Diabetes Prediction</h3>
+      <p>Get quick predictions from health data input.</p>
+     <a href="{{ url_for('index') }}" class="feature-btn">Explore</a>
+    </div>
+    <div class="feature-card">
+      <h3>Doctor Chat</h3>
+      <p>Connect with verified doctors via chat.</p>
+  <a href="{{ url_for('mainpage') }}" class="feature-btn">Explore</a>
+    </div>
+  </div>
+</section>
+
 
     <section class="section__container client__container" id="client">
       <h2 class="section__header">What people say about us?</h2>
@@ -115,7 +136,8 @@
           <div class="swiper-slide">
             <div class="client__card">
               <div class="client__details">
-                <img src="assets/client-3.jpg" alt="client" />
+                <img src="{{ url_for('static', filename='assets/client-3.jpg') }}" alt="Example Image">
+                
                 <div>
                   <h4>Rubim Shrestha</h4>
                   <div class="client__rating">
@@ -138,7 +160,7 @@
           <div class="swiper-slide">
             <div class="client__card">
               <div class="client__details">
-                <img src="assets/client-2.jpg" alt="client" />
+                <img src="{{ url_for('static', filename='assets/client-2.jpg') }}" alt="Example Image">
                 <div>
                   <h4>Shreyash Pokhrel</h4>
                   <div class="client__rating">
@@ -160,7 +182,7 @@
           <div class="swiper-slide">
             <div class="client__card">
               <div class="client__details">
-                <img src="assets/client-1.jpg" alt="client" />
+                <img src="{{ url_for('static', filename='assets/client-1.jpg') }}" alt="Example Image">
                 <div>
                   <h4>Sudeep Shrestha</h4>
                   <div class="client__rating">
@@ -179,7 +201,7 @@
           <div class="swiper-slide">
             <div class="client__card">
               <div class="client__details">
-                <img src="assets/client-4.jpg" alt="client" />
+                <img src="{{ url_for('static', filename='assets/client-4.jpg') }}" alt="Example Image">
                 <div>
                   <h4>Nima Sherpa</h4>
                   <div class="client__rating">
@@ -198,7 +220,7 @@
           <div class="swiper-slide">
             <div class="client__card">
               <div class="client__details">
-                <img src="assets/client-5.jpg" alt="client" />
+                <img src="{{ url_for('static', filename='assets/client-5.jpg') }}" alt="Example Image">
                 <div>
                   <h4>Rojan Raya</h4>
                   <div class="client__rating">
@@ -230,7 +252,7 @@
         <div class="footer__col">
           <div class="footer__logo">
             <a href="#" class="logo">
-              <img src="assets/sthethoscope.jpeg" alt="logo" />
+             <img src="{{ url_for('static', filename='assets/sthethoscope.jpeg') }}" alt="Example Image">
               <span>Healthcare System</span>
             </a>
           </div>
@@ -294,6 +316,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="main.js"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
   </body>
 </html>

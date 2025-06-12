@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Diabetes Predictor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .main-wrapper {
+      display: flex;
+      gap: 30px;
+      background: #ffffff;
+      padding: 2em;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 900px;
+    }
+
+    .form-container {
+      width: 50%;
+    }
+
+    .result-container {
+      width: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #e8f0fe;
+      border-radius: 15px;
+      padding: 1em;
+    }
+
+    h2 {
+      text-align: center;
+      color: #0047ab;
+    }
+
+    form input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #0047ab;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #003380;
+    }
+
+    #result {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #003380;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="form-container">
+      <h2>Diabetes Prediction Form</h2>
+      <form id="diabetesForm">
+        <input type="number" name="pregnancies" placeholder="Pregnancies" required>
+        <input type="number" name="glucose" placeholder="Glucose" required>
+        <input type="number" name="bloodPressure" placeholder="Blood Pressure" required>
+        <input type="number" name="skinThickness" placeholder="Skin Thickness" required>
+        <input type="number" name="insulin" placeholder="Insulin" required>
+        <input type="number" step="0.1" name="bmi" placeholder="BMI" required>
+        <input type="number" step="0.01" name="diabetesPedigree" placeholder="Diabetes Pedigree Function" required>
+        <input type="number" name="age" placeholder="Age" required>
+        <button type="submit">Predict</button>
+      </form>
+    </div>
+    <div class="result-container">
+      <div id="result">Your prediction result will appear here.</div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='diabetic.js') }}"></script>
+</body>
+</html>
