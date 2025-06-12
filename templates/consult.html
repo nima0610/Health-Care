@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doctor Consultation - Healthcare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #0ea5e9;
+      --primary-dark: #0369a1;
+      --secondary: #64748b;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --white: #ffffff;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--light);
+      min-height: 100vh;
+    }
+
+    /* Improved Navbar */
+    .navbar {
+      background: var(--white);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      text-decoration: none;
+      transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-2px);
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Main Container Layout */
+    .container {
+      max-width: 1400px;
+      margin: 90px auto 2rem;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 2rem;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 90px;
+      height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+
+    /* Main Content */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    /* Improved Card Design */
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+    }
+
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Chat Section */
+    .chat-container {
+      min-height: 500px;
+      margin-bottom: 2rem;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background: var(--light);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      margin-bottom: 1rem;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      max-width: 80%;
+      position: relative;
+      animation: messageSlide 0.3s ease;
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.sent {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.received {
+      background: var(--white);
+      border: 1px solid var(--border);
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .message-content {
+      line-height: 1.5;
+    }
+
+    /* Improved Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: var(--white);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    /* Enhanced Button Styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-badge.pending {
+      background: var(--warning);
+      color: var(--white);
+    }
+
+    .status-badge.confirmed {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .status-badge.cancelled {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+        height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+        margin-top: 80px;
+      }
+
+      .navbar {
+        padding: 1rem;
+      }
+
+      .logo span {
+        font-size: 1.2rem;
+      }
+
+      .card-header {
+        padding: 1rem;
+      }
+
+      .card-body {
+        padding: 1rem;
+      }
+
+      .message {
+        max-width: 90%;
+      }
+    }
+
+    .user-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .status-dot.offline {
+      background: var(--secondary);
+    }
+
+    .chat-header-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding-left: 1rem;
+    }
+
+    .image-preview {
+      max-width: 200px;
+      max-height: 200px;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .time-slot {
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .time-slot:hover {
+      border-color: var(--primary);
+      background: var(--light);
+    }
+
+    .time-slot.selected {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+
+    .time-slot.booked {
+      background: var(--secondary);
+      color: var(--white);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 1rem;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+    }
+
+    .typing-indicator {
+      font-size: 0.875rem;
+      color: var(--secondary);
+      font-style: italic;
+      margin-bottom: 0.5rem;
+    }
+
+    .file-upload-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .file-upload-label:hover,
+    .file-upload-label.dragover {
+      border-color: var(--primary);
+      background: var(--light);
+    }
+
+    .file-upload-label i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .file-upload-label span {
+      color: var(--secondary);
+    }
+
+    .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .reports-grid .card {
+      margin: 0;
+    }
+
+    .reports-grid .card-header {
+      padding: 1rem;
+    }
+
+    .reports-grid .card-header h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      word-break: break-all;
+    }
+
+    .reports-grid .card-body {
+      padding: 1rem;
+    }
+
+    .reports-grid .card-body p {
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--secondary);
+    }
+
+    /* Add loading spinner */
+    .loading {
+      display: inline-block;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: 3px solid var(--light);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Add error state styles */
+    .form-control.error {
+      border-color: var(--danger);
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Add success state styles */
+    .form-control.success {
+      border-color: var(--success);
+    }
+
+    .success-message {
+      color: var(--success);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Improve chat messages */
+    .chat-messages {
+      height: 400px;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      color: var(--secondary);
+      margin-left: 0.5rem;
+    }
+
+    .message-status {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .message-status.sent {
+      color: var(--success);
+    }
+
+    .message-status.error {
+      color: var(--danger);
+    }
+
+    /* Add tooltip styles */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip:hover::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.5rem;
+      background: var(--dark);
+      color: var(--white);
+      font-size: 0.75rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 1000;
+    }
+
+    /* Add accessibility improvements */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head> 
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/mainpage" class="logo">
+      <img src="../static/assets/sthethoscope.jpg" alt="Healthcare Logo">
+      <span>Healthcare Portal</span>
+    </a>
+    <button class="btn btn-outline" id="signOutBtn">
+      <i class="fas fa-sign-out-alt"></i> Sign Out
+    </button>
+    </nav>
+
+  <div class="container">
+    <!-- Chat Section -->
+    <div class="card chat-container">
+      <div class="card-header">
+        <i class="fas fa-comments"></i>
+        <div class="chat-header-info">
+          <h2>Chat with Doctor</h2>
+          <div class="user-status">
+            <div class="status-dot" id="doctorStatus"></div>
+            <span id="doctorName">Dr. </span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chat-messages" id="chatMessages">
+          <!-- Messages will be added here dynamically -->
+          <div id="typingIndicator" style="display: none;"></div>
+        </div>
+        <div id="imagePreview"></div>
+        <div class="chat-input-container">
+          <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+          <label class="btn btn-outline" style="margin: 0 0.5rem;">
+            <i class="fas fa-paperclip"></i>
+            <input type="file" id="chatFileInput" accept="image/*,.pdf" style="display: none;">
+          </label>
+          <button class="btn btn-primary" onclick="sendMessage()">
+            <i class="fas fa-paper-plane"></i> Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appointment Booking Section -->
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-calendar-check"></i>
+        <h2>Book Appointment</h2>
+      </div>
+      <div class="card-body">
+        <form id="appointmentForm">
+          <div class="form-group">
+            <label for="patientName">Patient Name</label>
+            <input type="text" id="patientName" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label for="patientEmail">Email</label>
+            <input type="email" id="patientEmail" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label for="specialization">Specialization</label>
+            <select id="specialization" class="form-control" required onchange="loadDoctors()">
+              <option value="">Select Specialization</option>
+              <option value="Cardiologist">Cardiologist</option>
+              <option value="Dermatologist">Dermatologist</option>
+              <option value="Neurologist">Neurologist</option>
+              <option value="Pediatrician">Pediatrician</option>
+              <option value="Psychiatrist">Psychiatrist</option>
+              <option value="General Physician">General Physician</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="doctor">Select Doctor</label>
+            <select id="doctor" class="form-control" required onchange="loadAvailableSlots()">
+              <option value="">First Select Specialization</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentDate">Select Date</label>
+            <input type="date" id="appointmentDate" class="form-control" required onchange="loadAvailableSlots()">
+          </div>
+
+          <div class="form-group">
+            <label>Available Time Slots</label>
+            <div class="time-slots" id="timeSlots">
+              <!-- Time slots will be added here dynamically -->
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="isVideo">
+              Video Consultation
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentNotes">Notes (Optional)</label>
+            <textarea id="appointmentNotes" class="form-control" rows="3"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-check"></i> Book Appointment
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Medical Reports Section -->
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-file-medical"></i>
+        <h2>Medical Reports</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label for="reportCategory">Report Category</label>
+          <select id="reportCategory" class="form-control" required>
+            <option value="">Select Category</option>
+            <option value="Lab Tests">Lab Tests</option>
+            <option value="X-Rays">X-Rays</option>
+            <option value="Prescriptions">Prescriptions</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="file-upload">
+          <label class="file-upload-label">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Choose report file</span>
+            <input type="file" id="reportFile" accept=".pdf,.doc,.docx,.jpg,.png">
+          </label>
+        </div>
+
+        <button class="btn btn-primary w-100" onclick="handleReportUpload()">
+          <i class="fas fa-upload"></i> Upload Report
+        </button>
+
+        <div class="reports-grid" id="reportsList">
+          <!-- Report cards will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    // Get user info from localStorage
+    const userEmail = localStorage.getItem('user_email');
+    const userName = localStorage.getItem('user_role');
+    if (!userEmail) {
+      window.location.href = '/login';
+    }
+
+    
+
+    // Set user info in form
+    document.getElementById('patientEmail').value = userEmail;
+    document.getElementById('patientName').value = userName;
+
+    // Set minimum date to today for appointment
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('appointmentDate').min = today;
+
+    // Socket.IO Chat Implementation
+    const socket = io();
+    let currentDoctorEmail = '';
+    let typingTimeout;
+    let selectedTime = null;
+
+    function initializeChat(doctorEmail, doctorName) {
+      currentDoctorEmail = doctorEmail;
+      document.getElementById('doctorName').textContent = 'Dr. ' + doctorName;
+      const room = `${userEmail}_${doctorEmail}`;
+      socket.emit('join', { room, username: userEmail });
+    }
+
+    // Add message handling functions
+    socket.on('message', function(data) {
+      const messagesDiv = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${data.username === userEmail ? 'sent' : 'received'}`;
+      
+      let content = '';
+      if (data.type === 'text') {
+        content = data.message;
+      } else if (data.type === 'file') {
+        if (data.file_path.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          content = `<img src="${data.file_path}" class="image-preview">`;
+        } else {
+          content = `<a href="${data.file_path}" target="_blank" class="btn btn-outline">
+            <i class="fas fa-download"></i> Download File
+          </a>`;
+        }
+      }
+
+      messageDiv.innerHTML = `
+        <div class="message-header">
+          <span>${data.username === userEmail ? 'You' : data.username}</span>
+          <span>${data.timestamp}</span>
+        </div>
+        <div class="message-content">${content}</div>
+      `;
+      
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    socket.on('typing', function(data) {
+      const typingDiv = document.getElementById('typingIndicator');
+      typingDiv.textContent = `${data.username} is typing...`;
+      typingDiv.style.display = 'block';
+      
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        typingDiv.style.display = 'none';
+      }, 1000);
+    });
+
+    // Add loading and error handling utilities
+    function showLoading(element) {
+      element.disabled = true;
+      element.innerHTML = '<span class="loading"></span> Loading...';
+    }
+
+    function hideLoading(element, originalContent) {
+      element.disabled = false;
+      element.innerHTML = originalContent;
+    }
+
+    function showError(element, message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      element.parentNode.appendChild(errorDiv);
+      element.classList.add('error');
+      setTimeout(() => {
+        errorDiv.remove();
+        element.classList.remove('error');
+      }, 3000);
+    }
+
+    function showSuccess(element, message) {
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success-message';
+      successDiv.textContent = message;
+      element.parentNode.appendChild(successDiv);
+      element.classList.add('success');
+      setTimeout(() => {
+        successDiv.remove();
+        element.classList.remove('success');
+      }, 3000);
+    }
+
+    // Modify loadDoctors with error handling
+    async function loadDoctors() {
+      const specialization = document.getElementById('specialization');
+      const doctorSelect = document.getElementById('doctor');
+      
+      if (!specialization.value) {
+        showError(specialization, 'Please select a specialization');
+        return;
+      }
+
+      showLoading(doctorSelect);
+      doctorSelect.innerHTML = '<option value="">Loading doctors...</option>';
+
+      try {
+        const response = await fetch(`/get_doctors?specialization=${encodeURIComponent(specialization.value)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+          data.doctors.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.email;
+            option.textContent = `Dr. ${doctor.name}`;
+            doctorSelect.appendChild(option);
+          });
+          if (data.doctors.length === 0) {
+            showError(doctorSelect, 'No doctors available for this specialization');
+          }
+        } else {
+          throw new Error(data.message || 'Failed to load doctors');
+        }
+      } catch (error) {
+        console.error('Error loading doctors:', error);
+        showError(doctorSelect, error.message);
+        doctorSelect.innerHTML = '<option value="">Error loading doctors</option>';
+      }
+    }
+
+    // Load available time slots
+    async function loadAvailableSlots() {
+      const doctor = document.getElementById('doctor').value;
+      const date = document.getElementById('appointmentDate').value;
+      const timeSlotsDiv = document.getElementById('timeSlots');
+      timeSlotsDiv.innerHTML = '';
+
+      if (doctor && date) {
+        try {
+          const response = await fetch(`/get_available_slots?doctor=${encodeURIComponent(doctor)}&date=${date}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            data.slots.forEach(slot => {
+              const slotDiv = document.createElement('div');
+              slotDiv.className = `time-slot ${slot.booked ? 'booked' : ''}`;
+              slotDiv.textContent = slot.time;
+              if (!slot.booked) {
+                slotDiv.onclick = () => selectTimeSlot(slot.time);
+              }
+              timeSlotsDiv.appendChild(slotDiv);
+            });
+          }
+        } catch (error) {
+          console.error('Error loading time slots:', error);
+        }
+      }
+    }
+
+    function selectTimeSlot(time) {
+      const slots = document.querySelectorAll('.time-slot');
+      slots.forEach(slot => {
+        if (slot.textContent === time) {
+          slot.classList.add('selected');
+        } else {
+          slot.classList.remove('selected');
+        }
+      });
+      selectedTime = time;
+    }
+
+    // Handle appointment booking
+    document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = {
+        email: userEmail,
+        name: userName,
+        specialization: document.getElementById('specialization').value,
+        doctor: document.getElementById('doctor').value,
+        date: document.getElementById('appointmentDate').value,
+        time: selectedTime,
+        is_video_consultation: document.getElementById('isVideo').checked,
+        notes: document.getElementById('appointmentNotes').value
+      };
+
+      try {
+        const response = await fetch('/book_appointment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Appointment booked successfully!');
+          this.reset();
+          document.getElementById('timeSlots').innerHTML = '';
+          if (data.consultation_link) {
+            alert(`Video consultation link: ${data.consultation_link}`);
+          }
+        } else {
+          alert(data.message || 'Failed to book appointment');
+        }
+      } catch (error) {
+        console.error('Error booking appointment:', error);
+        alert('Failed to book appointment');
+      }
+    });
+
+    // Modify handleReportUpload with better error handling
+    async function handleReportUpload() {
+      const fileInput = document.getElementById('reportFile');
+      const category = document.getElementById('reportCategory');
+      const uploadButton = document.querySelector('.btn-primary[onclick="handleReportUpload()"]');
+      const originalButtonContent = uploadButton.innerHTML;
+      
+      if (!fileInput.files[0]) {
+        showError(fileInput, 'Please select a file to upload');
+        return;
+      }
+
+      if (!category.value) {
+        showError(category, 'Please select a report category');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('reportFile', fileInput.files[0]);
+      formData.append('user_email', userEmail);
+      formData.append('category', category.value);
+
+      showLoading(uploadButton);
+
+      try {
+        const response = await fetch('/upload_report', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showSuccess(fileInput, 'Report uploaded successfully');
+          fileInput.value = '';
+          category.value = '';
+          loadReports();
+        } else {
+          throw new Error(data.message || 'Failed to upload report');
+        }
+      } catch (error) {
+        console.error('Error uploading report:', error);
+        showError(fileInput, error.message);
+      } finally {
+        hideLoading(uploadButton, originalButtonContent);
+      }
+    }
+
+    // Add loadReports function
+    async function loadReports() {
+      try {
+        const response = await fetch(`/get_reports?email=${encodeURIComponent(userEmail)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          const reportsGrid = document.getElementById('reportsList');
+          reportsGrid.innerHTML = '';
+          
+          data.reports.forEach(report => {
+            const reportCard = document.createElement('div');
+            reportCard.className = 'card';
+            reportCard.innerHTML = `
+              <div class="card-header">
+                <h3>${report.file_name}</h3>
+                <span class="status-badge">${report.category}</span>
+              </div>
+              <div class="card-body">
+                <p>Uploaded: ${report.upload_date}</p>
+                ${report.doctor_notes ? `<p>Doctor's Notes: ${report.doctor_notes}</p>` : ''}
+                <a href="/uploads/${report.file_path}" target="_blank" class="btn btn-primary">
+                  <i class="fas fa-download"></i> Download
+                </a>
+              </div>
+            `;
+            reportsGrid.appendChild(reportCard);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading reports:', error);
+      }
+    }
+
+    // Add sign out functionality
+    document.getElementById('signOutBtn').addEventListener('click', function() {
+      localStorage.removeItem('user_email');
+      localStorage.removeItem('user_name');
+      window.location.href = '/login';
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadReports();
+    });
+
+    // Handle file input change
+    document.getElementById('chatFileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = `
+              <img src="${e.target.result}" class="image-preview">
+              <button class="btn btn-danger" onclick="clearImagePreview()">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            `;
+          }
+          reader.readAsDataURL(file);
+        }
+        handleFileUpload(file);
+      }
+    });
+
+    function clearImagePreview() {
+      document.getElementById('imagePreview').innerHTML = '';
+      document.getElementById('chatFileInput').value = '';
+    }
+
+    // Add Enter key support for chat
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Add file upload styling
+    const fileUploadLabel = document.querySelector('.file-upload-label');
+    fileUploadLabel.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('dragover');
+    });
+
+    fileUploadLabel.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+    });
+
+    fileUploadLabel.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length) {
+        document.getElementById('reportFile').files = files;
+      }
+    });
+
+    // Add error handling for socket connection
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML += `
+        <div class="error-message">
+          Connection error. Please check your internet connection and try again.
+        </div>
+      `;
+    });
+
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML += `
+        <div class="error-message">
+          An error occurred. Please try again.
+        </div>
+      `;
+    });
+
+    // Add reconnection handling
+    socket.on('reconnect_attempt', () => {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML += `
+        <div class="message system">
+          Attempting to reconnect...
+        </div>
+      `;
+    });
+
+    socket.on('reconnect', () => {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML += `
+        <div class="message system success">
+          Reconnected successfully!
+        </div>
+      `;
+      if (currentDoctorEmail) {
+        const room = `${userEmail}_${currentDoctorEmail}`;
+        socket.emit('join', { room, username: userEmail });
+      }
+    });
+  </script>
+</body>
+</html>

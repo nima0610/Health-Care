@@ -35,7 +35,7 @@
           <li><a href="#client">Reviews</a></li>
         </ul>
         <div class="nav__btns">
-          <a href="mainpage.html"><button class="btn">LogOut</button></a>
+          <a href="{{ url_for('login') }}" class="btn">Log Out</a>
         </div>
       </nav>
       <div class="header__container" id="home">
@@ -118,7 +118,7 @@
     <div class="feature-card">
       <h3>Doctor Chat</h3>
       <p>Connect with verified doctors via chat.</p>
-  <a href="{{ url_for('mainpage') }}" class="feature-btn">Explore</a>
+  <a href="{{ url_for('consult') }}" class="feature-btn">Explore</a>
     </div>
   </div>
 </section>

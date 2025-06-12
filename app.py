@@ -281,14 +281,24 @@ def mainpage():
 def indexx():
     return render_template('indexx.html')
 
+@app.route('/login')
+def login():
+    return redirect("http://localhost:5002/")
+
 @app.route('/index')
 def index():
     return redirect("http://localhost:5001/")
+
+@app.route('/consult')
+def consult():
+    return redirect("http://localhost:5005/")
+
 
 @app.route('/reset')
 def reset():
     session.clear()
     return jsonify({'message': 'Session cleared.'})
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
