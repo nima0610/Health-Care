@@ -215,63 +215,77 @@
   </div>
 
 <script>
-document.getElementById("loginForm").addEventListener("submit", async function (e) {
+  // Listen for postMessage requests from port 5005 (parent)
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'http://localhost:5005') return;
+
+    if (event.data.type === 'requestUserData') {
+      const user_email = localStorage.getItem('user_email');
+      const user_role = localStorage.getItem('user_role');
+
+      event.source.postMessage({
+        type: 'userData',
+        user_email,
+        user_role
+      }, event.origin);
+    }
+  });
+
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    
+
     const loading = document.querySelector('.loading');
     const errorMsg = document.getElementById('errorMsg');
     const form = this;
-    
-    // Show loading
+
     loading.classList.add('show');
     errorMsg.classList.remove('show');
 
     try {
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const role = document.getElementById("role").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
 
-        const response = await fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password, role })
-        });
+      const response = await fetch("/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password, role })
+      });
 
-        const result = await response.json();
+      const result = await response.json();
 
-        if (result.status === "success") {
-            // Store user information in localStorage
-            localStorage.setItem('user_email', email);
-            localStorage.setItem('user_role', role);
+      if (result.status === "success") {
+        // Store user info on successful login
+        localStorage.setItem('user_email', email);
+        localStorage.setItem('user_role', role);
 
-            
-            
-            // Animate button
-            form.querySelector('button').textContent = 'Success! Redirecting...';
-            
-            // Redirect based on role
-            setTimeout(() => {
-                if (role === "user") {
-                    window.location.href = "http://localhost:5000/indexx";
-                } else if (role === "doctor") {
-                    window.location.href = "/doctormainpage";
-                }
-            }, 1000);
-        } else {
-            errorMsg.textContent = result.message || "Login failed. Please try again.";
-            errorMsg.classList.add('show');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        errorMsg.textContent = "An error occurred. Please try again later.";
+        // Animate button
+        form.querySelector('button').textContent = 'Success! Redirecting...';
+
+        // Redirect after short delay
+        setTimeout(() => {
+          if (role === "user") {
+            window.location.href = "http://localhost:5000/indexx";
+          } else if (role === "doctor") {
+            window.location.href = "/doctormainpage";
+          }
+        }, 1000);
+      } else {
+        errorMsg.textContent = result.message || "Login failed. Please try again.";
         errorMsg.classList.add('show');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      errorMsg.textContent = "An error occurred. Please try again later.";
+      errorMsg.classList.add('show');
     } finally {
-        loading.classList.remove('show');
+      loading.classList.remove('show');
     }
-});
+  });
 </script>
+
 
 </body>
 </html>

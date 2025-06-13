@@ -574,12 +574,67 @@
       border: 0;
     }
   </style>
+
+  <script>
+    async function loadDoctors() {
+       console.log('loadDoctors called');
+        console.log('loadDoctors triggered');
+      const specialization = document.getElementById('specialization');
+      const doctorSelect = document.getElementById('doctor');
+      
+      if (!specialization.value) {
+        showError(specialization, 'Please select a specialization');
+        return;
+      }
+
+      showLoading(doctorSelect);
+      doctorSelect.innerHTML = '<option value="">Loading doctors...</option>';
+
+      try {
+        const response = await fetch(`/get_doctors?specialization=${encodeURIComponent(specialization.value)}`);
+        const data = await response.json();
+        console.log("Doctors response:", data);
+        console.log(data);
+        console.log("Selected specialization:", specialization.value);
+        
+        if (data.success) {
+          doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+          data.doctors.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.email;
+            option.textContent = `Dr. ${doctor.name}`;
+            doctorSelect.appendChild(option);
+          });
+
+           doctorSelect.disabled = false;
+
+          if (data.doctors.length === 0) {
+            showError(doctorSelect, 'No doctors available for this specialization');
+          }
+        } else {
+          throw new Error(data.message || 'Failed to load doctors');
+        }
+      } catch (error) {
+        console.error('Error loading doctors:', error);
+        showError(doctorSelect, error.message);
+        doctorSelect.innerHTML = '<option value="">Error loading doctors</option>';
+      }
+    }
+    function showLoading(element) {
+      element.disabled = true;
+      element.innerHTML = '<span class="loading"></span> Loading...';
+    }
+
+   
+
+
+  </script>
 </head> 
 <body>
   <!-- Navbar -->
   <nav class="navbar">
     <a href="/mainpage" class="logo">
-      <img src="../static/assets/sthethoscope.jpg" alt="Healthcare Logo">
+      <img src="{{ url_for('static', filename='assets/sthethoscope.jpeg') }}" alt="Example Image">
       <span>Healthcare Portal</span>
     </a>
     <button class="btn btn-outline" id="signOutBtn">
@@ -663,7 +718,7 @@
           </div>
 
           <div class="form-group">
-            <label>Available Time Slots</label>
+           <label>Available Time Slots</label>
             <div class="time-slots" id="timeSlots">
               <!-- Time slots will be added here dynamically -->
             </div>
@@ -726,15 +781,20 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    // Get user info from localStorage
-    const userEmail = localStorage.getItem('user_email');
-    const userName = localStorage.getItem('user_role');
+<iframe id="iframe5002" src="http://localhost:5002" style="display:none;"></iframe>
+
+<script>
+  let userEmail = null;
+  let userName = null;
+
+  const iframe = document.getElementById('iframe5002');
+
+  // Function to initialize app once user data is loaded
+  function initializeApp() {
     if (!userEmail) {
       window.location.href = '/login';
+      return;
     }
-
-    
 
     // Set user info in form
     document.getElementById('patientEmail').value = userEmail;
@@ -743,6 +803,32 @@
     // Set minimum date to today for appointment
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('appointmentDate').min = today;
+
+    // Initialize Socket.IO connection and the rest of your code that depends on userEmail/userName here
+    initializeSocketAndApp();
+  }
+
+  // Listen for messages from iframe on port 5002
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'http://localhost:5002') return;
+    if (event.data.type === 'userData') {
+      userEmail = event.data.user_email;
+      userName = event.data.user_role;
+      initializeApp();
+    }
+  });
+
+  // Request user data from iframe after it loads
+  iframe.onload = () => {
+    iframe.contentWindow.postMessage({ type: 'requestUserData' }, 'http://localhost:5002');
+  };
+
+  // Your existing code, refactored into a function to be called after user data is ready
+  function initializeSocketAndApp() {
+    // --- Your entire original script here, but replace
+    // const userEmail = localStorage.getItem('user_email');
+    // const userName = localStorage.getItem('user_role');
+    // with the userEmail and userName variables set above ---
 
     // Socket.IO Chat Implementation
     const socket = io();
@@ -799,12 +885,16 @@
       }, 1000);
     });
 
-    // Add loading and error handling utilities
-    function showLoading(element) {
-      element.disabled = true;
-      element.innerHTML = '<span class="loading"></span> Loading...';
-    }
+    // (and so on, keep the rest of your code unchanged except replacing any 
+    // localStorage.getItem('user_email') with userEmail, and 'user_role' with userName)
+    
+    // Also update sign out to clear userEmail and userName from wherever needed
+    
+    // For example:
 
+
+    // Add loading and error handling utilities
+    
     function hideLoading(element, originalContent) {
       element.disabled = false;
       element.innerHTML = originalContent;
@@ -834,73 +924,11 @@
       }, 3000);
     }
 
-    // Modify loadDoctors with error handling
-    async function loadDoctors() {
-      const specialization = document.getElementById('specialization');
-      const doctorSelect = document.getElementById('doctor');
-      
-      if (!specialization.value) {
-        showError(specialization, 'Please select a specialization');
-        return;
-      }
 
-      showLoading(doctorSelect);
-      doctorSelect.innerHTML = '<option value="">Loading doctors...</option>';
-
-      try {
-        const response = await fetch(`/get_doctors?specialization=${encodeURIComponent(specialization.value)}`);
-        const data = await response.json();
-        
-        if (data.success) {
-          doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
-          data.doctors.forEach(doctor => {
-            const option = document.createElement('option');
-            option.value = doctor.email;
-            option.textContent = `Dr. ${doctor.name}`;
-            doctorSelect.appendChild(option);
-          });
-          if (data.doctors.length === 0) {
-            showError(doctorSelect, 'No doctors available for this specialization');
-          }
-        } else {
-          throw new Error(data.message || 'Failed to load doctors');
-        }
-      } catch (error) {
-        console.error('Error loading doctors:', error);
-        showError(doctorSelect, error.message);
-        doctorSelect.innerHTML = '<option value="">Error loading doctors</option>';
-      }
-    }
+    
 
     // Load available time slots
-    async function loadAvailableSlots() {
-      const doctor = document.getElementById('doctor').value;
-      const date = document.getElementById('appointmentDate').value;
-      const timeSlotsDiv = document.getElementById('timeSlots');
-      timeSlotsDiv.innerHTML = '';
-
-      if (doctor && date) {
-        try {
-          const response = await fetch(`/get_available_slots?doctor=${encodeURIComponent(doctor)}&date=${date}`);
-          const data = await response.json();
-          
-          if (data.success) {
-            data.slots.forEach(slot => {
-              const slotDiv = document.createElement('div');
-              slotDiv.className = `time-slot ${slot.booked ? 'booked' : ''}`;
-              slotDiv.textContent = slot.time;
-              if (!slot.booked) {
-                slotDiv.onclick = () => selectTimeSlot(slot.time);
-              }
-              timeSlotsDiv.appendChild(slotDiv);
-            });
-          }
-        } catch (error) {
-          console.error('Error loading time slots:', error);
-        }
-      }
-    }
-
+    
     function selectTimeSlot(time) {
       const slots = document.querySelectorAll('.time-slot');
       slots.forEach(slot => {
@@ -910,7 +938,7 @@
           slot.classList.remove('selected');
         }
       });
-      selectedTime = time;
+       document.getElementById('selectedTime').value = time;
     }
 
     // Handle appointment booking
@@ -938,6 +966,7 @@
         });
 
         const data = await response.json();
+        console.log(data);
         
         if (data.success) {
           alert('Appointment booked successfully!');
@@ -986,6 +1015,7 @@
         });
 
         const data = await response.json();
+        console.log(data);
         
         if (data.success) {
           showSuccess(fileInput, 'Report uploaded successfully');
@@ -1008,6 +1038,7 @@
       try {
         const response = await fetch(`/get_reports?email=${encodeURIComponent(userEmail)}`);
         const data = await response.json();
+        console.log(data);
         
         if (data.success) {
           const reportsGrid = document.getElementById('reportsList');
@@ -1039,8 +1070,7 @@
 
     // Add sign out functionality
     document.getElementById('signOutBtn').addEventListener('click', function() {
-      localStorage.removeItem('user_email');
-      localStorage.removeItem('user_name');
+
       window.location.href = '/login';
     });
 
@@ -1147,6 +1177,43 @@
         socket.emit('join', { room, username: userEmail });
       }
     });
-  </script>
+
+
+    // Initialize page parts that depend on userEmail
+    loadReports();
+  }
+
+</script>
+<script>
+  async function loadAvailableSlots() {
+    const doctor = document.getElementById('doctor').value;
+    const date = document.getElementById('appointmentDate').value;
+    const timeSlotsDiv = document.getElementById('timeSlots');
+    timeSlotsDiv.innerHTML = '';
+
+    if (doctor && date) {
+      try {
+        const response = await fetch(`/get_available_slots?doctor=${encodeURIComponent(doctor)}&date=${date}`);
+        const data = await response.json();
+        
+        console.log(data);
+        
+        if (data.success) {
+          data.slots.forEach(slot => {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = `time-slot ${slot.booked ? 'booked' : ''}`;
+            slotDiv.textContent = slot.time;
+            if (!slot.booked) {
+              slotDiv.onclick = () => selectTimeSlot(slot.time);
+            }
+            timeSlotsDiv.appendChild(slotDiv);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading time slots:', error);
+      }
+    }
+  }
+</script>
 </body>
 </html>
