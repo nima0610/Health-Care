@@ -692,6 +692,8 @@
             <input type="email" id="patientEmail" class="form-control" readonly>
           </div>
 
+          <input type="hidden" id="selectedTime" name="time" />
+
           <div class="form-group">
             <label for="specialization">Specialization</label>
             <select id="specialization" class="form-control" required onchange="loadDoctors()">
@@ -929,17 +931,7 @@
 
     // Load available time slots
     
-    function selectTimeSlot(time) {
-      const slots = document.querySelectorAll('.time-slot');
-      slots.forEach(slot => {
-        if (slot.textContent === time) {
-          slot.classList.add('selected');
-        } else {
-          slot.classList.remove('selected');
-        }
-      });
-       document.getElementById('selectedTime').value = time;
-    }
+    
 
     // Handle appointment booking
     document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
@@ -951,7 +943,7 @@
         specialization: document.getElementById('specialization').value,
         doctor: document.getElementById('doctor').value,
         date: document.getElementById('appointmentDate').value,
-        time: selectedTime,
+        time: document.getElementById('selectedTime').value,
         is_video_consultation: document.getElementById('isVideo').checked,
         notes: document.getElementById('appointmentNotes').value
       };
@@ -1214,6 +1206,22 @@
       }
     }
   }
+
+   let selectedTime = null;
+  function selectTimeSlot(time) {
+      const slots = document.querySelectorAll('.time-slot');
+      slots.forEach(slot => {
+        if (slot.textContent === time) {
+          slot.classList.add('selected');
+        } else {
+          slot.classList.remove('selected');
+        }
+      });
+      selectedTime = time;   // set the global variabl
+       document.getElementById('selectedTime').value = time;
+    }
+
+    
 </script>
 </body>
 </html>
