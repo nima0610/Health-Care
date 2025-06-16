@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bridge</title>
+</head>
+<body>
+<script>
+  window.addEventListener('message', (event) => {
+    console.log("[bridge.html] Received message:", event);
+
+    // Only respond if message came from the expected origin
+    if (event.origin !== 'http://localhost:5005') {
+      console.warn("[bridge.html] Rejected message from origin:", event.origin);
+      return;
+    }
+
+    // Only respond to specific type of message
+    if (event.data && event.data.type === 'requestUserData') {
+      const user_email = localStorage.getItem('user_email');
+      const user_role = localStorage.getItem('user_role');
+
+      console.log("[bridge.html] Found in localStorage:");
+      console.log("  user_email:", user_email);
+      console.log("  user_role:", user_role);
+
+      // Send the data back to the parent window
+      window.parent.postMessage({
+        type: 'userData',
+        user_email,
+        user_role
+      }, 'http://localhost:5005');
+
+      console.log("[bridge.html] Sent userData back to parent");
+    }
+  });
+</script>
+</body>
+</html>

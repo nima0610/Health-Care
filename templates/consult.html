@@ -792,7 +792,27 @@
   const iframe = document.getElementById('iframe5002');
 
   // Function to initialize app once user data is loaded
-  function initializeApp() {
+ 
+
+  // Listen for messages from iframe on port 5002
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'http://localhost:5002') return;
+    if (event.data.type === 'userData') {
+      userEmail = event.data.user_email;
+      userName = event.data.user_role;
+      console.log('User email received:', userEmail);
+     initializeApp();
+    }
+    else {
+      // Retry after short delay
+      console.log("User not logged in yet. Retrying...");
+      setTimeout(() => {
+        iframe.contentWindow.postMessage({ type: 'requestUserData' }, 'http://localhost:5002');
+      }, 1000);
+    }
+  });
+
+   function initializeApp() {
     if (!userEmail) {
       window.location.href = '/login';
       return;
@@ -809,16 +829,6 @@
     // Initialize Socket.IO connection and the rest of your code that depends on userEmail/userName here
     initializeSocketAndApp();
   }
-
-  // Listen for messages from iframe on port 5002
-  window.addEventListener('message', (event) => {
-    if (event.origin !== 'http://localhost:5002') return;
-    if (event.data.type === 'userData') {
-      userEmail = event.data.user_email;
-      userName = event.data.user_role;
-      initializeApp();
-    }
-  });
 
   // Request user data from iframe after it loads
   iframe.onload = () => {

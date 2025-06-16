@@ -216,21 +216,27 @@
 
 <script>
   // Listen for postMessage requests from port 5005 (parent)
-  window.addEventListener('message', (event) => {
-    if (event.origin !== 'http://localhost:5005') return;
+ window.addEventListener('message', (event) => {
+ // if (event.origin !== 'http://localhost:5005') return;
 
-    if (event.data.type === 'requestUserData') {
-      const user_email = localStorage.getItem('user_email');
-      const user_role = localStorage.getItem('user_role');
+  console.log("📩 Message received from port 5005:", event.data);
 
-      event.source.postMessage({
-        type: 'userData',
-        user_email,
-        user_role
-      }, event.origin);
-    }
-  });
+  if (event.data.type === 'requestUserData') {
+    const user_email = localStorage.getItem('user_email');
+    const user_role = localStorage.getItem('user_role');
+    
+console.log("🛬 Iframe page loaded. localStorage data:", {
+  user_email: localStorage.getItem('user_email'),
+  user_role: localStorage.getItem('user_role')
+});
 
+    event.source.postMessage({
+      type: 'userData',
+      user_email,
+      user_role
+    }, event.origin);
+  }
+});
   document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -260,6 +266,10 @@
         // Store user info on successful login
         localStorage.setItem('user_email', email);
         localStorage.setItem('user_role', role);
+        console.log("✅ Login successful");
+       console.log("📥 Stored in localStorage:");
+       console.log("  user_email:", localStorage.getItem('user_email'));
+       console.log("  user_role:", localStorage.getItem('user_role'));
 
         // Animate button
         form.querySelector('button').textContent = 'Success! Redirecting...';

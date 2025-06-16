@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #0ea5e9;
+      --primary-dark: #0369a1;
+      --secondary: #64748b;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --white: #ffffff;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: var(--white);
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .sign-out {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sign-out:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 90px auto 2rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Chat Section */
+    .chat-container {
+      grid-column: span 2;
+    }
+
+    .chat-messages {
+      height: 400px;
+      overflow-y: auto;
+      padding: 1rem;
+      background: var(--light);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      margin-bottom: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+
+    .message.sent {
+      background: var(--primary);
+      color: var(--white);
+      margin-left: auto;
+    }
+
+    .message.received {
+      background: var(--white);
+      border: 1px solid var(--border);
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    /* Appointments Section */
+    .appointment-card {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .appointment-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .appointment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .patient-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .patient-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .appointment-details {
+      margin: 1rem 0;
+    }
+
+    .appointment-actions {
+      display: flex;
+      gap: 0.8rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Reports Section */
+    .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .report-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .report-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .report-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .report-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.7);
+      color: var(--white);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-container {
+        grid-column: span 1;
+      }
+
+      .navbar {
+        padding: 1rem;
+      }
+
+      .logo span {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <img src="{{ url_for('static', filename='assets/sthethoscope.jpeg') }}" alt="Example Image">
+        <span>Doctor Dashboard</span>
+    </a>
+    <button class="sign-out" id="signOutBtn">
+      <i class="fas fa-sign-out-alt"></i> Sign Out
+    </button>
+  </nav>
+
+  <div class="container">
+    <!-- Chat Section -->
+    <div class="card chat-container">
+        <div id="appointmentList"></div>
+      <div class="card-header">
+        <i class="fas fa-comments"></i>
+        <h2>Patient Chat</h2>
+      </div>
+      <div class="card-body">
+        <div class="chat-messages" id="chat-box">
+          <!-- Messages will be dynamically added here -->
+        </div>
+<div class="chat-input-container">
+  <input type="text" id="chat-input" class="chat-input" placeholder="Type your message...">
+
+  <!-- Upload file button (label) -->
+  <label for="chatFileInput" class="upload-label" title="Attach File">
+    <i class="fas fa-paperclip"></i>
+  </label>
+  <input type="file" id="chatFileInput" style="display: none;" />
+
+  <button class="btn btn-success" onclick="sendMessage()">
+    <i class="fas fa-paper-plane"></i> Send
+  </button>
+</div>
+
+      </div>
+    </div>
+
+
+  
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  
+<script>
+   
+  let userEmail = null;
+  let userRole = null;
+
+let doctorEmail = '';
+
+  function createOrReloadIframe() {
+    // Remove old iframe if exists
+    const oldIframe = document.getElementById('iframe5002');
+    if (oldIframe) {
+      oldIframe.remove();
+    }
+
+    // Create new iframe
+    const newIframe = document.createElement('iframe');
+    newIframe.id = 'iframe5002';
+    newIframe.style.display = 'none';
+    newIframe.src = 'http://localhost:5002/bridge.html';
+
+    // When iframe loads, ask for user data
+    newIframe.onload = () => {
+      newIframe.contentWindow.postMessage({ type: 'requestUserData' }, 'http://localhost:5002');
+    };
+
+    document.body.appendChild(newIframe);
+  }
+
+  // Listen for user data from iframe (port 5002)
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'http://localhost:5002') return;
+    if (event.data.type === 'userData') {
+      userEmail = event.data.user_email;
+      userRole = event.data.user_role;
+       console.log('Received user data from iframe:', userEmail, userRole);
+      
+       if (!userEmail) {
+        window.location.href = '/login';
+        return;
+      }
+      
+  initializeApp();
+      loadAppointments();
+      
+    }
+  });
+
+
+ function initializeApp() {
+    doctorEmail = userRole === 'doctor' ? userEmail : null;
+    console.log('Initializing app for user:', userEmail);
+
+    // Put your socket.io and app init logic here,
+    // or call your existing initializeSocketAndApp function
+    initializeSocketAndApp();
+  }
+  // Ask iframe for localStorage data after it loads
+ 
+
+  // Your main Socket.IO and app logic starts here after data is ready
+  function initializeSocketAndApp() {
+  const socket = io();
+
+  socket.on('connect', () => {
+    console.log('Socket connected:', socket.id);
+  });
+
+  socket.on('message', (data) => {
+    addMessage(data.username, data.message, data.type, data.file_path, data.timestamp);
+  });
+
+  socket.on('typing', (data) => {
+    const typingIndicator = document.getElementById('typingIndicator');
+    typingIndicator.textContent = `${data.username} is typing...`;
+    typingIndicator.style.display = 'block';
+    setTimeout(() => {
+      typingIndicator.style.display = 'none';
+    }, 2000);
+  });
+
+  // Example of your chat initialization logic
+  function initializeChat(doctorEmailParam, doctorName) {
+    doctorEmail = doctorEmailParam; // use passed parameter
+    document.getElementById('doctorName').textContent = 'Dr. ' + doctorName;
+    const room = `${userEmail}_${doctorEmail}`;
+    socket.emit('join', { room, username: userEmail });
+  }
+
+  // You can add more app logic here
+}
+
+    
+  
+    function addMessage(username, message, type = 'text', filePath = null, timestamp) {
+    const chatBox = document.getElementById('chat-box');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${username === doctorEmail ? 'sent' : 'received'}`;
+      
+      let content = '';
+      if (type === 'text') {
+        content = message;
+      } else if (type === 'file') {
+        if (filePath.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          content = `<img src="${filePath}" alt="Shared image" style="max-width: 200px;">`;
+        } else {
+          content = `<a href="${filePath}" target="_blank"><i class="fas fa-file"></i> ${message}</a>`;
+        }
+      }
+      
+      messageDiv.innerHTML = `
+        <div class="message-header">
+          <strong>${username}</strong>
+          <small>${timestamp}</small>
+        </div>
+        <div class="message-content">${content}</div>
+      `;
+      
+      chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (message && currentPatientEmail) {
+        const room = `${currentPatientEmail}_${doctorEmail}`;
+        socket.emit('message', {
+          room,
+          message,
+          username: doctorEmail,
+          type: 'text'
+        });
+      input.value = '';
+    }
+  }
+
+    async function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file || !currentPatientEmail) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/chat/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          const room = `${currentPatientEmail}_${doctorEmail}`;
+          socket.emit('message', {
+            room,
+            message: file.name,
+            username: doctorEmail,
+            type: 'file',
+            file_path: data.file_path
+          });
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        showNotification('Failed to upload file', 'error');
+      }
+    }
+
+    function emitTyping() {
+      if (!currentPatientEmail) return;
+      
+      clearTimeout(typingTimeout);
+      const room = `${currentPatientEmail}_${doctorEmail}`;
+      socket.emit('typing', { room, username: doctorEmail });
+      
+      typingTimeout = setTimeout(() => {
+        // Stop typing indicator after 1 second of no input
+      }, 1000);
+    }
+
+    // Appointment Management
+    async function loadAppointments() {
+      try {
+        const response = await fetch(`/get_appointments?email=${encodeURIComponent(userEmail)}&is_doctor=true`);
+        const data = await response.json();
+      
+        if (data.success) {
+          
+          const appointmentList = document.getElementById('appointmentList');
+          appointmentList.innerHTML = '';
+          
+          data.appointments.forEach(appointment => {
+            const card = document.createElement('div');
+            card.className = 'appointment-card';
+            card.innerHTML = `
+              <div class="appointment-header">
+                <div class="patient-info">
+                  <div class="patient-avatar">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div>
+                    <h3>${appointment.user_email}</h3>
+                    <span class="text-secondary">${appointment.specialization}</span>
+                  </div>
+                </div>
+                <span class="badge ${appointment.status}">
+                  ${appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                </span>
+              </div>
+              <div class="appointment-details">
+                <p><i class="fas fa-calendar"></i> ${appointment.appointment_date}</p>
+                <p><i class="fas fa-clock"></i> ${appointment.appointment_time}</p>
+                ${appointment.notes ? `<p><i class="fas fa-notes-medical"></i> Notes: ${appointment.notes}</p>` : ''}
+                ${appointment.is_video_consultation ? `
+                  <p><i class="fas fa-video"></i> Video Consultation</p>
+                  <a href="${appointment.consultation_link}" target="_blank" class="btn btn-primary">
+                    Join Call
+                  </a>
+                ` : ''}
+              </div>
+              <div class="appointment-actions">
+                ${appointment.status === 'pending' ? `
+                  <button class="btn btn-success" onclick="updateAppointmentStatus(${appointment.id}, 'accepted')">
+                    <i class="fas fa-check"></i> Accept
+                  </button>
+                  <button class="btn btn-danger" onclick="updateAppointmentStatus(${appointment.id}, 'rejected')">
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                ` : ''}
+                ${appointment.status === 'accepted' ? `
+                  <button class="btn btn-primary" onclick="addPrescription(${appointment.id}, '${appointment.user_email}')">
+                    <i class="fas fa-prescription"></i> Add Prescription
+                  </button>
+                  <button class="btn btn-info" onclick="scheduleFollowUp(${appointment.id}, '${appointment.user_email}')">
+                    <i class="fas fa-calendar-plus"></i> Schedule Follow-up
+                  </button>
+                ` : ''}
+              </div>
+            `;
+            
+            // Add click handler to start chat with patient
+            card.querySelector('.patient-info').addEventListener('click', () => {
+              currentPatientEmail = appointment.user_email;
+              const room = `${currentPatientEmail}_${doctorEmail}`;
+              socket.emit('join', { room, username: doctorEmail });
+            });
+            
+            appointmentList.appendChild(card);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading appointments:', error);
+        showNotification('Failed to load appointments', 'error');
+      }
+    }
+
+    async function updateAppointmentStatus(appointmentId, status) {
+      try {
+        const response = await fetch('/update_appointment_status', {
+    method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: appointmentId, status })
+        });
+
+        const data = await response.json();
+    if (data.success) {
+          showNotification(`Appointment ${status} successfully`, 'success');
+          loadAppointments();
+    } else {
+          showNotification(data.message || 'Failed to update appointment', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating appointment:', error);
+        showNotification('Failed to update appointment', 'error');
+      }
+    }
+
+    function addPrescription(appointmentId, patientEmail) {
+      // Create and show prescription modal
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <h3>Add Prescription</h3>
+          <form id="prescriptionForm">
+            <div class="form-group">
+              <label>Prescription</label>
+              <textarea id="prescriptionText" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Dosage Instructions</label>
+              <textarea id="dosageInstructions"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Duration</label>
+              <input type="text" id="duration" placeholder="e.g., 7 days">
+            </div>
+            <div class="modal-actions">
+              <button type="submit" class="btn btn-primary">Save</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      document.getElementById('prescriptionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        try {
+          const response = await fetch('/add_prescription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              appointment_id: appointmentId,
+              user_email: patientEmail,
+              doctor_email: doctorEmail,
+              prescription_text: document.getElementById('prescriptionText').value,
+              dosage_instructions: document.getElementById('dosageInstructions').value,
+              duration: document.getElementById('duration').value
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            showNotification('Prescription added successfully', 'success');
+            closeModal();
+            loadAppointments();
+          } else {
+            showNotification(data.message || 'Failed to add prescription', 'error');
+          }
+        } catch (error) {
+          console.error('Error adding prescription:', error);
+          showNotification('Failed to add prescription', 'error');
+        }
+      });
+}
+
+    function scheduleFollowUp(originalAppointmentId, patientEmail) {
+      // Create and show follow-up modal
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <h3>Schedule Follow-up</h3>
+          <form id="followupForm">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="followupDate" required>
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <select id="followupTime" required>
+                <option value="">Select Time</option>
+                <!-- Add time slots -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Reason</label>
+              <textarea id="followupReason"></textarea>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="isVideoFollowup">
+                Video Consultation
+              </label>
+            </div>
+            <div class="modal-actions">
+              <button type="submit" class="btn btn-primary">Schedule</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      document.getElementById('followupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        try {
+          const response = await fetch('/schedule_followup', {
+    method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              original_appointment_id: originalAppointmentId,
+              user_email: patientEmail,
+              doctor_name: doctorEmail,
+              specialization: 'Follow-up',
+              date: document.getElementById('followupDate').value,
+              time: document.getElementById('followupTime').value,
+              is_video_consultation: document.getElementById('isVideoFollowup').checked,
+              reason: document.getElementById('followupReason').value
+            })
+          });
+
+          const data = await response.json();
+    if (data.success) {
+            showNotification('Follow-up scheduled successfully', 'success');
+            closeModal();
+            loadAppointments();
+    } else {
+            showNotification(data.message || 'Failed to schedule follow-up', 'error');
+          }
+        } catch (error) {
+          console.error('Error scheduling follow-up:', error);
+          showNotification('Failed to schedule follow-up', 'error');
+        }
+      });
+    }
+
+    function closeModal() {
+      const modal = document.querySelector('.modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    // Medical Reports Management
+    async function loadReports() {
+      try {
+        const response = await fetch(`/get_reports?email=${encodeURIComponent(currentPatientEmail)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          const reportsGrid = document.querySelector('.reports-grid');
+          reportsGrid.innerHTML = '';
+          
+          data.reports.forEach(report => {
+            const reportCard = document.createElement('div');
+            reportCard.className = 'report-card';
+            reportCard.innerHTML = `
+              <div class="report-header">
+                <span class="report-category">${report.category}</span>
+                <span class="report-date">${report.upload_date}</span>
+              </div>
+              <div class="report-content">
+                <h4>${report.file_name}</h4>
+                <div class="doctor-notes">
+                  <textarea
+                    class="notes-input"
+                    placeholder="Add notes..."
+                    onchange="addReportNote(${report.id}, this.value)"
+                  >${report.doctor_notes || ''}</textarea>
+                </div>
+              </div>
+              <div class="report-actions">
+                <a href="/uploads/${report.file_path}" target="_blank" class="btn btn-primary">
+                  <i class="fas fa-eye"></i> View
+                </a>
+              </div>
+            `;
+            reportsGrid.appendChild(reportCard);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading reports:', error);
+        showNotification('Failed to load reports', 'error');
+      }
+    }
+
+    async function addReportNote(reportId, note) {
+      try {
+        const response = await fetch('/add_report_note', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ report_id: reportId, note })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          showNotification('Note added successfully', 'success');
+        } else {
+          showNotification(data.message || 'Failed to add note', 'error');
+        }
+      } catch (error) {
+        console.error('Error adding note:', error);
+        showNotification('Failed to add note', 'error');
+      }
+    }
+
+    // Event Listeners
+    document.getElementById('chat-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    document.getElementById('chat-input').addEventListener('input', emitTyping);
+
+    document.getElementById('chatFileInput').addEventListener('change', handleFileUpload);
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+       createOrReloadIframe();
+    });
+
+    // Sign Out
+    document.getElementById("signOutBtn").addEventListener("click", function(event) {
+      event.preventDefault();
+      if (confirm("Are you sure you want to sign out?")) {
+        window.location.href = "/index";
+      }
+    });
+  </script>
+</body>
+</html>
