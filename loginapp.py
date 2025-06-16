@@ -24,6 +24,10 @@ def get_db_connection():
 def home():
     return redirect('/login')
 
+@app.route('/bridge.html')
+def bridge():
+    return render_template('bridge.html')
+
 
 # Login route
 @app.route('/login', methods=['GET', 'POST'])

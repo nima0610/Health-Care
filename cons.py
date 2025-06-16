@@ -69,6 +69,10 @@ def uploaded_file(filename):
 def first_index():
     return render_template('consult.html')
 
+@app.route('/doctorpage')
+def doctorpage():
+    return render_template('doctorpage.html')
+
 @app.route('/register')
 def show_registrer():
     return render_template('registration.html')
@@ -383,6 +387,8 @@ def book_appointment():
         })
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+    
+    
 
 @app.route('/get_appointments', methods=['GET'])
 def get_appointments():

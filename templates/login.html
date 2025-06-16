@@ -240,6 +240,8 @@ console.log("🛬 Iframe page loaded. localStorage data:", {
   document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
+      localStorage.clear();
+
     const loading = document.querySelector('.loading');
     const errorMsg = document.getElementById('errorMsg');
     const form = this;
@@ -279,7 +281,7 @@ console.log("🛬 Iframe page loaded. localStorage data:", {
           if (role === "user") {
             window.location.href = "http://localhost:5000/indexx";
           } else if (role === "doctor") {
-            window.location.href = "/doctormainpage";
+            window.location.href = "http://localhost:5005/doctorpage";
           }
         }, 1000);
       } else {
