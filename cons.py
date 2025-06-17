@@ -52,6 +52,23 @@ app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key_here')
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
+@app.route('/get_specializations')
+def get_specializations():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT DISTINCT specialization FROM doctor")
+    specs = [row[0] for row in cur.fetchall()]
+    cur.close()
+    return jsonify({'specializations': specs})
+
+@app.route('/get_doctors_by_specialization')
+def get_doctors_by_specialization():
+    specialization = request.args.get('specialization')
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT name, email FROM doctor WHERE specialization = %s", (specialization,))
+    doctors = [{'name': row[0], 'email': row[1]} for row in cur.fetchall()]
+    cur.close()
+    return jsonify({'doctors': doctors})
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):

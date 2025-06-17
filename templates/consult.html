@@ -643,12 +643,36 @@
     </nav>
 
   <div class="container">
+
+    <div class="card selection-container">
+  <div class="card-header">
+    <h3>Select Specialization and Doctor</h3>
+  </div>
+  <div class="card-body">
+    <div class="form-group">
+      <label for="specializationSelect">Specialization</label>
+      <select id="specializationSelect" class="form-control">
+        <option value="">Select Specialization</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="doctorSelect">Doctor</label>
+      <select id="doctorSelect" class="form-control" disabled>
+        <option value="">Select Doctor</option>
+      </select>
+    </div>
+
+    <button id="startChatBtn" class="btn btn-success" disabled>Start Chat</button>
+  </div>
+</div>
     <!-- Chat Section -->
     <div class="card chat-container">
       <div class="card-header">
         <i class="fas fa-comments"></i>
         <div class="chat-header-info">
           <h2>Chat with Doctor</h2>
+          
           <div class="user-status">
             <div class="status-dot" id="doctorStatus"></div>
             <span id="doctorName">Dr. </span>
@@ -826,6 +850,76 @@
     }
   });
 
+ let doctorMap = {}; // Store doctorName => doctorEmail
+
+  window.onload = function () {
+    fetchSpecializations();
+
+    document.getElementById('specializationSelect').addEventListener('change', function () {
+      const specialization = this.value;
+      if (specialization) {
+        fetchDoctors(specialization);
+      } else {
+        resetDoctorSelect();
+      }
+    });
+
+    document.getElementById('doctorSelect').addEventListener('change', function () {
+      const selectedDoctor = this.value;
+      document.getElementById('startChatBtn').disabled = !selectedDoctor;
+    });
+
+    document.getElementById('startChatBtn').addEventListener('click', function () {
+      const doctorName = document.getElementById('doctorSelect').value;
+      const doctorEmail = doctorMap[doctorName];
+      if (doctorEmail) {
+        initializeChat(doctorEmail, doctorName);
+      }
+    });
+  };
+
+  function fetchSpecializations() {
+    fetch('/get_specializations') // Flask route you need to implement
+      .then(res => res.json())
+      .then(data => {
+        const specSelect = document.getElementById('specializationSelect');
+        data.specializations.forEach(spec => {
+          const opt = document.createElement('option');
+          opt.value = spec;
+          opt.textContent = spec;
+          specSelect.appendChild(opt);
+        });
+      })
+      .catch(err => console.error('Failed to load specializations', err));
+  }
+
+  function fetchDoctors(specialization) {
+    fetch(`/get_doctors_by_specialization?specialization=${encodeURIComponent(specialization)}`)
+      .then(res => res.json())
+      .then(data => {
+        const docSelect = document.getElementById('doctorSelect');
+        resetDoctorSelect();
+        doctorMap = {};
+        data.doctors.forEach(doc => {
+          const opt = document.createElement('option');
+          opt.value = doc.name;
+          opt.textContent = doc.name;
+          doctorMap[doc.name] = doc.email;
+          docSelect.appendChild(opt);
+        });
+        docSelect.disabled = false;
+      })
+      .catch(err => console.error('Failed to load doctors', err));
+  }
+
+  function resetDoctorSelect() {
+    const docSelect = document.getElementById('doctorSelect');
+    docSelect.innerHTML = '<option value="">Select Doctor</option>';
+    docSelect.disabled = true;
+    document.getElementById('startChatBtn').disabled = true;
+  }
+
+
    function initializeApp() {
     if (!userEmail) {
       window.location.href = '/login';
@@ -843,8 +937,36 @@
 
     // Initialize Socket.IO connection and the rest of your code that depends on userEmail/userName here
     initializeSocketAndApp();
+   loadPrescriptions(userEmail);
+    
+  }
+ 
 
-     loadPrescriptions(userEmail);
+ function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+
+  if (message && currentDoctorEmail) {
+    const room = `${userEmail}_${currentDoctorEmail}`;
+    const data = {
+      room,
+      message,
+      username: userEmail,
+      type: 'text',
+      timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    };
+
+    socket.emit('message', data);
+    input.value = '';
+
+    // REMOVE the UI append here. Wait for socket.on('message') to add it.
+    
+    console.log(`Sent message: "${message}" to room: ${room}`);
+  } else {
+    console.log('No message or doctor selected.');
+  }
+}
+
 
     async function loadPrescriptions(email) {
   try {
@@ -876,7 +998,6 @@
     console.error('Error loading prescriptions:', error);
   }
 }
-  }
   function togglePrescriptions() {
   const container = document.getElementById('prescriptionsContainer');
   if (container.style.display === 'none') {
@@ -895,10 +1016,19 @@
     iframe.contentWindow.postMessage({ type: 'requestUserData' }, 'http://localhost:5002');
   };
 
+   function initializeChat(doctorEmail, doctorName) {
+      currentDoctorEmail = doctorEmail;
+      document.getElementById('doctorName').textContent = 'Dr. ' + doctorName;
+      const room = `${userEmail}_${doctorEmail}`;
+      socket.emit('join', { room, username: userEmail });
+    }
+
+
   // Your existing code, refactored into a function to be called after user data is ready
+  let socket;
   function initializeSocketAndApp() {
     
-    const socket = io();
+    socket = io();
 
     socket.on('connect', () => {
   console.log('Socket connected (patient):', socket.id);
@@ -908,13 +1038,7 @@
     let typingTimeout;
     let selectedTime = null;
 
-    function initializeChat(doctorEmail, doctorName) {
-      currentDoctorEmail = doctorEmail;
-      document.getElementById('doctorName').textContent = 'Dr. ' + doctorName;
-      const room = `${userEmail}_${doctorEmail}`;
-      socket.emit('join', { room, username: userEmail });
-    }
-
+   
     // Add message handling functions
     socket.on('message', function(data) {
       const messagesDiv = document.getElementById('chatMessages');

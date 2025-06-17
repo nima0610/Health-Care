@@ -528,6 +528,21 @@ function sendMessage() {
       }
     }
 
+let typingTimeout;  // Declare once at the top of doctorpage.js or inside the main function scope
+
+function emitTyping() {
+  if (!currentPatientEmail) return;
+
+  clearTimeout(typingTimeout);
+  const room = `${currentPatientEmail}_${doctorEmail}`;
+  socket.emit('typing', { room, username: doctorEmail });
+
+  typingTimeout = setTimeout(() => {
+    // Stop typing indicator after 1 second of no input
+  }, 1000);
+}
+
+
     function emitTyping() {
       if (!currentPatientEmail) return;
       
