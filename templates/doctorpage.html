@@ -318,6 +318,7 @@
         <h2>Patient Chat</h2>
       </div>
       <div class="card-body">
+  <h4>Chatting with: <span id="activeChatPatientName">No patient selected</span></h4>
         <div class="chat-messages" id="chat-box">
           <!-- Messages will be dynamically added here -->
         </div>
@@ -347,6 +348,7 @@
    
   let userEmail = null;
   let userRole = null;
+  let currentPatientEmail = ''; 
 
 let doctorEmail = '';
 
@@ -401,13 +403,14 @@ let doctorEmail = '';
   }
   // Ask iframe for localStorage data after it loads
  
-
+let socket;
   // Your main Socket.IO and app logic starts here after data is ready
   function initializeSocketAndApp() {
-  const socket = io();
+  socket = io();
 
   socket.on('connect', () => {
     console.log('Socket connected:', socket.id);
+    
   });
 
   socket.on('message', (data) => {
@@ -424,12 +427,15 @@ let doctorEmail = '';
   });
 
   // Example of your chat initialization logic
-  function initializeChat(doctorEmailParam, doctorName) {
-    doctorEmail = doctorEmailParam; // use passed parameter
-    document.getElementById('doctorName').textContent = 'Dr. ' + doctorName;
-    const room = `${userEmail}_${doctorEmail}`;
-    socket.emit('join', { room, username: userEmail });
-  }
+  function initializeChat(patientEmail, doctorEmailParam, doctorName) {
+  currentPatientEmail = patientEmail;  // <--- set patient email here
+  doctorEmail = doctorEmailParam;
+  
+  document.getElementById('doctorName').textContent = 'Dr. ' + doctorName;
+  
+  const room = `${currentPatientEmail}_${doctorEmail}`;
+  socket.emit('join', { room, username: doctorEmail });
+}
 
   // You can add more app logic here
 }
@@ -464,20 +470,33 @@ let doctorEmail = '';
     chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-  function sendMessage() {
-    const input = document.getElementById('chat-input');
-      const message = input.value.trim();
-      if (message && currentPatientEmail) {
-        const room = `${currentPatientEmail}_${doctorEmail}`;
-        socket.emit('message', {
-          room,
-          message,
-          username: doctorEmail,
-          type: 'text'
-        });
-      input.value = '';
-    }
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+
+  if (!currentPatientEmail) {
+    console.error('sendMessage: No patient selected!');
+    alert('Please select a patient before sending a message.');
+    return;
   }
+
+  if (!message) {
+    console.warn('sendMessage: Message is empty.');
+    return;
+  }
+
+  const room = `${currentPatientEmail}_${doctorEmail}`;
+  console.log(`sendMessage: Sending message to room: ${room}`, message);
+
+  socket.emit('message', {
+    room,
+    message,
+    username: doctorEmail,
+    type: 'text'
+  });
+
+  input.value = '';
+}
 
     async function handleFileUpload(event) {
       const file = event.target.files[0];
@@ -577,6 +596,9 @@ let doctorEmail = '';
                   <button class="btn btn-info" onclick="scheduleFollowUp(${appointment.id}, '${appointment.user_email}')">
                     <i class="fas fa-calendar-plus"></i> Schedule Follow-up
                   </button>
+                   <button class="btn btn-success" onclick="startChatWithPatient('${appointment.user_email}', '${appointment.user_name || ''}')">
+      <i class="fas fa-comments"></i> Chat
+    </button>
                 ` : ''}
               </div>
             `;
@@ -596,6 +618,19 @@ let doctorEmail = '';
         showNotification('Failed to load appointments', 'error');
       }
     }
+
+function startChatWithPatient(patientEmail, patientName) {
+  currentPatientEmail = patientEmail;
+
+  document.getElementById('activeChatPatientName').textContent = patientName || patientEmail;
+
+  const room = `${currentPatientEmail}_${doctorEmail}`;
+  socket.emit('join', { room, username: doctorEmail });
+
+  document.getElementById('chat-box').innerHTML = '';  // clear previous chat messages if any
+
+  console.log(`Started chat with patient: ${patientEmail}`);
+}
 
     async function updateAppointmentStatus(appointmentId, status) {
       try {
@@ -619,6 +654,32 @@ let doctorEmail = '';
         showNotification('Failed to update appointment', 'error');
       }
     }
+
+function showNotification(message, type = 'success') {
+  const notification = document.createElement('div');
+  notification.className = `notification toast-${type}`;
+  notification.textContent = message;
+
+  // Basic styling (you can replace this with a CSS class or style tag if needed)
+  notification.style.position = 'fixed';
+  notification.style.top = '20px';
+  notification.style.right = '20px';
+  notification.style.padding = '12px 20px';
+  notification.style.color = '#fff';
+  notification.style.borderRadius = '8px';
+  notification.style.fontSize = '16px';
+  notification.style.zIndex = '9999';
+  notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+  notification.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+
+
 
     function addPrescription(appointmentId, patientEmail) {
       // Create and show prescription modal
@@ -672,6 +733,7 @@ let doctorEmail = '';
           const data = await response.json();
           if (data.success) {
             showNotification('Prescription added successfully', 'success');
+            console.log("Prescription response:", data);
             closeModal();
             loadAppointments();
           } else {

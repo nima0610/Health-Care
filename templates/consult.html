@@ -762,6 +762,16 @@
             <option value="Other">Other</option>
           </select>
         </div>
+        <!-- New Prescriptions Section -->
+<div class="card">
+  <div class="card-header" style="cursor: pointer;" onclick="togglePrescriptions()">
+    <i class="fas fa-prescription-bottle-alt"></i>
+    <h2>Prescriptions</h2>
+  </div>
+  <div class="card-body" id="prescriptionsContainer" style="display: none;">
+    <!-- Prescriptions will load here -->
+  </div>
+</div>
 
         <div class="file-upload">
           <label class="file-upload-label">
@@ -790,7 +800,11 @@
   let userName = null;
 
   const iframe = document.getElementById('iframe5002');
-
+//if (iframe) {
+ // iframe.onload = () => {
+  //  iframe.contentWindow.postMessage({ type: 'clearStorage' }, 'http://localhost:5002');
+  //};
+//}
   // Function to initialize app once user data is loaded
  
 
@@ -801,7 +815,7 @@
       userEmail = event.data.user_email;
       userName = event.data.user_role;
       console.log('User email received:', userEmail);
-     initializeApp();
+      initializeApp();
     }
     else {
       // Retry after short delay
@@ -817,6 +831,7 @@
       window.location.href = '/login';
       return;
     }
+    
 
     // Set user info in form
     document.getElementById('patientEmail').value = userEmail;
@@ -828,7 +843,52 @@
 
     // Initialize Socket.IO connection and the rest of your code that depends on userEmail/userName here
     initializeSocketAndApp();
+
+     loadPrescriptions(userEmail);
+
+    async function loadPrescriptions(email) {
+  try {
+    const response = await fetch(`/get_prescriptions?email=${encodeURIComponent(email)}`);
+    const data = await response.json();
+
+    if (data.success) {
+      const container = document.getElementById('prescriptionsContainer');
+      container.innerHTML = ''; // Clear old data
+
+      data.prescriptions.forEach(prescription => {
+        const prescDiv = document.createElement('div');
+        prescDiv.className = 'prescription-card';
+        prescDiv.innerHTML = `
+          <h4>Prescription for Appointment #${prescription.appointment_id}</h4>
+          <p><strong>Doctor:</strong> ${prescription.doctor_email}</p>
+          <p><strong>Prescription:</strong> ${prescription.prescription_text}</p>
+          <p><strong>Dosage Instructions:</strong> ${prescription.dosage_instructions || 'N/A'}</p>
+          <p><strong>Duration:</strong> ${prescription.duration || 'N/A'}</p>
+          <hr>
+        `;
+        container.appendChild(prescDiv);
+      });
+    } else {
+      console.error('Failed to load prescriptions:', data.message);
+      // Optionally show notification here if you have showNotification function
+    }
+  } catch (error) {
+    console.error('Error loading prescriptions:', error);
   }
+}
+  }
+  function togglePrescriptions() {
+  const container = document.getElementById('prescriptionsContainer');
+  if (container.style.display === 'none') {
+    container.style.display = 'block';
+    // Optionally load prescriptions here if not already loaded
+    if (!container.hasChildNodes()) {
+      loadPrescriptions(userEmail);
+    }
+  } else {
+    container.style.display = 'none';
+  }
+}
 
   // Request user data from iframe after it loads
   iframe.onload = () => {
@@ -837,13 +897,13 @@
 
   // Your existing code, refactored into a function to be called after user data is ready
   function initializeSocketAndApp() {
-    // --- Your entire original script here, but replace
-    // const userEmail = localStorage.getItem('user_email');
-    // const userName = localStorage.getItem('user_role');
-    // with the userEmail and userName variables set above ---
-
-    // Socket.IO Chat Implementation
+    
     const socket = io();
+
+    socket.on('connect', () => {
+  console.log('Socket connected (patient):', socket.id);
+});
+    
     let currentDoctorEmail = '';
     let typingTimeout;
     let selectedTime = null;
@@ -985,6 +1045,7 @@
         alert('Failed to book appointment');
       }
     });
+
 
     // Modify handleReportUpload with better error handling
     async function handleReportUpload() {

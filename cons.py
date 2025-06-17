@@ -14,6 +14,19 @@ import json
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    username = data['username']
+    join_room(room)
+    print(f"{username} joined room {room}")
+
+@socketio.on('message')
+def on_message(data):
+    room = data['room']
+    print(f"Message to room {room}: {data['message']}")
+    emit('message', data, room=room)
+
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
@@ -388,7 +401,44 @@ def book_appointment():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
     
+
     
+    
+@app.route('/get_prescriptions', methods=['GET'])
+def get_prescriptions():
+    try:
+        user_email = request.args.get('email')
+        if not user_email:
+            return jsonify({'success': False, 'message': 'User email is required'})
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT id, appointment_id, doctor_email, prescription_text, dosage_instructions, duration, created_at
+            FROM prescriptions
+            WHERE user_email = %s
+            ORDER BY created_at DESC
+        """, (user_email,))
+        
+        rows = cur.fetchall()
+        cur.close()
+        
+        prescriptions = []
+        for row in rows:
+            prescriptions.append({
+                'id': row[0],
+                'appointment_id': row[1],
+                'doctor_email': row[2],
+                'prescription_text': row[3],
+                'dosage_instructions': row[4],
+                'duration': row[5],
+                'created_at': row[6].strftime('%Y-%m-%d') if row[6] else ''
+            })
+        
+        return jsonify({'success': True, 'prescriptions': prescriptions})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+
 
 @app.route('/get_appointments', methods=['GET'])
 def get_appointments():
