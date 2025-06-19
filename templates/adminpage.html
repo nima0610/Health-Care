@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - Approve Doctors</title>
+    <title>Admin Panel - Approve Doctors & View Patients</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,6 +44,12 @@
         .reject {
             background-color: #dc3545;
         }
+
+        .section-title {
+            margin-top: 50px;
+            font-size: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +79,24 @@
                 </form>
             </td>
         </tr>
+        {% endfor %}
+    </table>
+
+    <div class="section-title">Registered Patients</div>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>User (Email)</th>
+            <th>Password</th>
+        </tr>
+        {% for patient in patients %}
+        <tr>
+    <td>{{ patient.id }}</td>
+    <td>{{ patient.name }}</td>
+    <td>{{ patient.email }}</td>       <!-- Correct email here -->
+    <td>{{ patient.password }}</td>
+</tr>
         {% endfor %}
     </table>
 </body>

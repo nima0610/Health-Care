@@ -39,9 +39,14 @@ def admin():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id, name, email, specialization, contact FROM doctor WHERE is_approved = 0")
     doctors = cursor.fetchall()
+     # Fetch all patients
+    cursor.execute("SELECT id, name, email, password FROM user")
+    patients = cursor.fetchall()
+    print("Doctors fetched:", doctors)    # <-- debug output
+    print("Patients fetched:", patients)  # <-- debug output
     cursor.close()
     conn.close()
-    return render_template("adminpage.html", doctors=doctors)
+    return render_template("adminpage.html", doctors=doctors, patients=patients)
 
 
 # ✅ Approve doctor (set is_approved = 1)
@@ -102,6 +107,33 @@ def register_doctor():
         return redirect(url_for('login'))
 
     return render_template('register_doctor.html')
+
+
+@app.route('/adminlogin', methods=['GET', 'POST'])
+def adminlogin():
+    error = None
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if email == 'admin@1234' and password == '12345':
+              return redirect(url_for('admin'))
+        else:
+            error = "Invalid credentials"
+    return render_template('admin.html', error=error)
+
+
+@app.route('/adminpage')
+def adminpage():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch all users from the user table
+    cursor.execute("SELECT id, name, email, password FROM user")
+    patients = cursor.fetchall()
+
+    conn.close()
+
+    return render_template('adminpage.html', patients=patients)
 
 
 # ➕ Register Normal User
