@@ -242,12 +242,33 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
+    .background-gap {
+  height: 40px;
+  background: transparent; /* shows your page's blue background */
+}
+
+/* Optional: override card margin to keep spacing tight */
+.chat-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
     /* Reports Section */
     .reports-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 1rem;
     }
+
+.appointment-scroll-container {
+  max-height: 300px; /* enough space for 2 appointment cards */
+  overflow-y: auto;
+  padding-right: 10px; /* optional: space for scrollbar */
+  margin: 1rem 1.5rem; /* same padding style as card-body */
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
 
     .report-card {
       position: relative;
@@ -312,7 +333,12 @@
   <div class="container">
     <!-- Chat Section -->
     <div class="card chat-container">
-        <div id="appointmentList"></div>
+     <div class="appointment-scroll-container">
+  <div id="appointmentList"></div>
+</div>
+
+<div class="background-gap"></div>
+
       <div class="card-header">
         <i class="fas fa-comments"></i>
         <h2>Patient Chat</h2>

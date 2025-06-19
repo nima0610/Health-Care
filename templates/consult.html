@@ -942,6 +942,50 @@
   }
  
 
+  function clearImagePreview() {
+      document.getElementById('imagePreview').innerHTML = '';
+      document.getElementById('chatFileInput').value = '';
+    }
+
+    function handleFileUpload(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // Show a loading or status message if you want
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.innerHTML += `
+    <div class="message system">Uploading file: ${file.name}...</div>
+  `;
+
+  fetch('/upload', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    return response.json(); // assume server returns { fileUrl: "...", message: "..." }
+  })
+  .then(data => {
+    console.log('File uploaded:', data);
+    
+    // You can display a message or file link in chat
+    chatMessages.innerHTML += `
+      <div class="message sent">
+        File uploaded: <a href="${data.fileUrl}" target="_blank">${file.name}</a>
+      </div>
+    `;
+  })
+  .catch(error => {
+    console.error('Error uploading file:', error);
+    chatMessages.innerHTML += `
+      <div class="error-message">File upload failed: ${error.message}</div>
+    `;
+  });
+}
+
+
  function sendMessage() {
   const input = document.getElementById('chatInput');
   const message = input.value.trim();
@@ -1171,6 +1215,9 @@
     });
 
 
+ 
+
+
     // Modify handleReportUpload with better error handling
     async function handleReportUpload() {
       const fileInput = document.getElementById('reportFile');
@@ -1285,13 +1332,10 @@
         }
         handleFileUpload(file);
       }
+       
     });
 
-    function clearImagePreview() {
-      document.getElementById('imagePreview').innerHTML = '';
-      document.getElementById('chatFileInput').value = '';
-    }
-
+   
     // Add Enter key support for chat
     document.getElementById('chatInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) {

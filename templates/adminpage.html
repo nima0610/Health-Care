@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Approve Doctors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        form {
+            display: inline;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .approve {
+            background-color: #28a745;
+        }
+
+        .reject {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h2>Doctors Pending Approval</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Specialization</th>
+            <th>Contact</th>
+            <th>Actions</th>
+        </tr>
+        {% for doctor in doctors %}
+        <tr>
+            <td>{{ doctor.id }}</td>
+            <td>{{ doctor.name }}</td>
+            <td>{{ doctor.email }}</td>
+            <td>{{ doctor.specialization }}</td>
+            <td>{{ doctor.contact }}</td>
+            <td>
+                <form method="post" action="{{ url_for('approve_doctor', doctor_id=doctor.id) }}">
+                    <button type="submit" class="btn approve">Approve</button>
+                </form>
+                <form method="post" action="{{ url_for('reject_doctor', doctor_id=doctor.id) }}">
+                    <button type="submit" class="btn reject">Reject</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

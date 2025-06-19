@@ -147,6 +147,21 @@
       border-radius: 12px;
     }
 
+.register-link {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.register-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
     .loading.show {
       display: flex;
       animation: fadeIn 0.3s ease;
@@ -206,6 +221,11 @@
       <button type="submit">
         Login
       </button>
+
+      <a href="{{ url_for('register') }}" class="register-link">Don't have an account? Register</a>
+
+      <a href="{{ url_for('admin') }}" class="register-link">Login as Admin</a>
+      
     </form>
 
     <div class="msg" id="errorMsg"></div>
