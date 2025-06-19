@@ -616,9 +616,7 @@ function emitTyping() {
                 ${appointment.notes ? `<p><i class="fas fa-notes-medical"></i> Notes: ${appointment.notes}</p>` : ''}
                 ${appointment.is_video_consultation ? `
                   <p><i class="fas fa-video"></i> Video Consultation</p>
-                  <a href="${appointment.consultation_link}" target="_blank" class="btn btn-primary">
-                    Join Call
-                  </a>
+                  
                 ` : ''}
               </div>
               <div class="appointment-actions">
@@ -634,7 +632,7 @@ function emitTyping() {
                   <button class="btn btn-primary" onclick="addPrescription(${appointment.id}, '${appointment.user_email}')">
                     <i class="fas fa-prescription"></i> Add Prescription
                   </button>
-                  <button class="btn btn-info" onclick="scheduleFollowUp(${appointment.id}, '${appointment.user_email}')">
+                  <button class="btn btn-info" style="display: none; onclick="scheduleFollowUp(${appointment.id}, '${appointment.user_email}')">
                     <i class="fas fa-calendar-plus"></i> Schedule Follow-up
                   </button>
                    <button class="btn btn-success" onclick="startChatWithPatient('${appointment.user_email}', '${appointment.user_name || ''}')">

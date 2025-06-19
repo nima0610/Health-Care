@@ -42,8 +42,7 @@ def admin():
      # Fetch all patients
     cursor.execute("SELECT id, name, email, password FROM user")
     patients = cursor.fetchall()
-    print("Doctors fetched:", doctors)    # <-- debug output
-    print("Patients fetched:", patients)  # <-- debug output
+ 
     cursor.close()
     conn.close()
     return render_template("adminpage.html", doctors=doctors, patients=patients)

@@ -750,7 +750,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="display: none;">
             <label class="checkbox-label">
               <input type="checkbox" id="isVideo">
               Video Consultation
@@ -769,28 +769,12 @@
       </div>
     </div>
 
-    <!-- Medical Reports Section -->
-    <div class="card">
-      <div class="card-header">
-        <i class="fas fa-file-medical"></i>
-        <h2>Medical Reports</h2>
-      </div>
-      <div class="card-body">
-        <div class="form-group">
-          <label for="reportCategory">Report Category</label>
-          <select id="reportCategory" class="form-control" required>
-            <option value="">Select Category</option>
-            <option value="Lab Tests">Lab Tests</option>
-            <option value="X-Rays">X-Rays</option>
-            <option value="Prescriptions">Prescriptions</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
+   
         <!-- New Prescriptions Section -->
 <div class="card">
   <div class="card-header" style="cursor: pointer;" onclick="togglePrescriptions()">
     <i class="fas fa-prescription-bottle-alt"></i>
-    <h2>Prescriptions</h2>
+    <h2>My Prescriptions</h2>
   </div>
   <div class="card-body" id="prescriptionsContainer" style="display: none;">
     <!-- Prescriptions will load here -->
@@ -799,16 +783,11 @@
 
         <div class="file-upload">
           <label class="file-upload-label">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <span>Choose report file</span>
-            <input type="file" id="reportFile" accept=".pdf,.doc,.docx,.jpg,.png">
+           
           </label>
         </div>
 
-        <button class="btn btn-primary w-100" onclick="handleReportUpload()">
-          <i class="fas fa-upload"></i> Upload Report
-        </button>
-
+      
         <div class="reports-grid" id="reportsList">
           <!-- Report cards will be added here dynamically -->
         </div>
