@@ -56,6 +56,87 @@ app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key_here')
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route('/delete_appointment/<int:appointment_id>', methods=['DELETE'])
+def delete_appointment(appointment_id):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM book_appointment WHERE id = %s", (appointment_id,))
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'success': True, 'message': 'Appointment deleted successfully'})
+    except Exception as e:
+        print("Error deleting appointment:", e)
+        return jsonify({'success': False, 'message': 'Failed to delete appointment'}), 500
+
+
+@app.route('/hide_appointment/<int:appointment_id>', methods=['POST'])
+def hide_appointment(appointment_id):
+    try:
+        data = request.json
+        user_email = data.get('email')
+
+        if not user_email:
+            return jsonify({'success': False, 'message': 'Missing user email'}), 400
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE book_appointment
+            SET visibility = FALSE
+            WHERE id = %s AND user_email = %s
+        """, (appointment_id, user_email))
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({'success': True, 'message': 'Appointment hidden successfully'})
+    except Exception as e:
+        print("Error hiding appointment:", e)
+        return jsonify({'success': False, 'message': 'Failed to hide appointment'}), 500
+
+
+@app.route('/get_appointments_notifications')
+def get_appointments_notifications():
+    user_email = request.args.get('email')
+    if not user_email:
+        return jsonify({'success': False, 'appointments': [], 'message': 'No email provided'}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT id, doctor_name, specialization, appointment_date, status
+            FROM book_appointment
+            WHERE user_email = %s AND visibility = TRUE
+            ORDER BY appointment_date DESC
+            LIMIT 30
+        """, (user_email,))
+        appointments = cur.fetchall()
+        cur.close()
+
+        appointments_list = []
+        for row in appointments:
+            appointment_date = row[3]
+            if appointment_date is None:
+                formatted_date = 'N/A'
+            else:
+                try:
+                    formatted_date = appointment_date.strftime('%Y-%m-%d %H:%M')
+                except Exception:
+                    formatted_date = str(appointment_date)
+
+            appointments_list.append({
+                'id': row[0],  # appointment id
+                'doctor_name': row[1],
+                'specialization': row[2],
+                'appointment_date': formatted_date,
+                'status': row[4]
+            })
+
+        return jsonify({'success': True, 'appointments': appointments_list})
+
+    except Exception as e:
+        print("Error fetching appointments:", e)
+        return jsonify({'success': False, 'message': 'Internal Server Error'}), 500
+
+
 
 @app.route('/signout')
 def signout():
@@ -464,7 +545,6 @@ def get_prescriptions():
         return jsonify({'success': False, 'message': str(e)})
 
 
-
 @app.route('/get_appointments', methods=['GET'])
 def get_appointments():
     try:
@@ -475,29 +555,36 @@ def get_appointments():
         
         if is_doctor:
             cur.execute("""
-                SELECT a.*, p.id as prescription_id, p.prescription_text,
+                SELECT a.id, a.user_email, a.doctor_name, a.specialization,
+                       a.appointment_date, a.appointment_time, a.status,
+                       a.is_video_consultation, a.consultation_link, a.notes,
+                       a.created_at,
+                       p.id as prescription_id, p.prescription_text,
                        f.followup_appointment_id, f.reason as followup_reason
                 FROM book_appointment a
                 LEFT JOIN prescriptions p ON a.id = p.appointment_id
                 LEFT JOIN followup_appointments f ON a.id = f.original_appointment_id
-                WHERE a.doctor_name = %s 
+                WHERE a.doctor_name = %s AND a.is_visible = TRUE
                 ORDER BY a.appointment_date, a.appointment_time
             """, (email,))
         else:
             cur.execute("""
-                SELECT a.*, p.id as prescription_id, p.prescription_text,
+                SELECT a.id, a.user_email, a.doctor_name, a.specialization,
+                       a.appointment_date, a.appointment_time, a.status,
+                       a.is_video_consultation, a.consultation_link, a.notes,
+                       a.created_at,
+                       p.id as prescription_id, p.prescription_text,
                        f.followup_appointment_id, f.reason as followup_reason
                 FROM book_appointment a
                 LEFT JOIN prescriptions p ON a.id = p.appointment_id
                 LEFT JOIN followup_appointments f ON a.id = f.original_appointment_id
-                WHERE a.user_email = %s 
+                WHERE a.user_email = %s AND a.is_visible = TRUE
                 ORDER BY a.appointment_date, a.appointment_time
             """, (email,))
             
         appointments = cur.fetchall()
         cur.close()
         
-        # Convert to list of dictionaries
         appointment_list = []
         for appt in appointments:
             appointment_list.append({
@@ -526,24 +613,57 @@ def get_appointments():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+
+@app.route('/delete_prescription/<int:prescription_id>', methods=['DELETE'])
+def delete_prescription(prescription_id):
+    try:
+        cur = mysql.connection.cursor()
+        # ✅ Corrected table name: prescriptions
+        cur.execute("DELETE FROM prescriptions WHERE id = %s", (prescription_id,))
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        print("Error deleting prescription:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/update_appointment_status', methods=['POST'])
 def update_appointment_status():
     try:
         data = request.json
+        appointment_id = data.get('id')
+        new_status = data.get('status')
+
+        if not appointment_id or not new_status:
+            return jsonify({'success': False, 'message': 'Missing appointment ID or status'}), 400
+
         cur = mysql.connection.cursor()
-        
-        cur.execute("""
-            UPDATE book_appointment 
-            SET status = %s 
-            WHERE id = %s
-        """, (data['status'], data['id']))
-        
+
+        if new_status == 'rejected':
+            cur.execute("""
+                UPDATE book_appointment
+                SET is_visible = FALSE,
+                    status = %s
+                WHERE id = %s
+            """, (new_status, appointment_id))
+        else:
+            cur.execute("""
+                UPDATE book_appointment
+                SET status = %s
+                WHERE id = %s
+            """, (new_status, appointment_id))
+
         mysql.connection.commit()
         cur.close()
-        
-        return jsonify({'success': True, 'message': 'Status updated successfully'})
+
+        return jsonify({'success': True, 'message': 'Appointment updated successfully'})
+
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+
+
+
 
 @app.route('/add_prescription', methods=['POST'])
 def add_prescription():

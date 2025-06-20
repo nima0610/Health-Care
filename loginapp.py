@@ -42,10 +42,13 @@ def admin():
      # Fetch all patients
     cursor.execute("SELECT id, name, email, password FROM user")
     patients = cursor.fetchall()
+
+    cursor.execute("SELECT id, name, email, password, specialization, contact FROM doctor WHERE is_approved = 1")
+    approved_doctors = cursor.fetchall()
  
     cursor.close()
     conn.close()
-    return render_template("adminpage.html", doctors=doctors, patients=patients)
+    return render_template("adminpage.html", doctors=doctors, patients=patients, approved_doctors=approved_doctors)
 
 
 # ✅ Approve doctor (set is_approved = 1)
@@ -123,16 +126,8 @@ def adminlogin():
 
 @app.route('/adminpage')
 def adminpage():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    return redirect(url_for('admin'))
 
-    # Fetch all users from the user table
-    cursor.execute("SELECT id, name, email, password FROM user")
-    patients = cursor.fetchall()
-
-    conn.close()
-
-    return render_template('adminpage.html', patients=patients)
 
 
 # ➕ Register Normal User

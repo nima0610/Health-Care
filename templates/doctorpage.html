@@ -628,7 +628,28 @@ function emitTyping() {
         // Stop typing indicator after 1 second of no input
       }, 1000);
     }
+async function hideAppointment(appointmentId) {
+  if (!confirm('Are you sure you want to remove this appointment from the list?')) return;
 
+  try {
+    const response = await fetch('/update_appointment_status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: appointmentId, status: 'rejected' }) // using 'rejected' to trigger your backend logic that hides the appointment
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      showNotification('Appointment removed from the list', 'success');
+      loadAppointments(); // reload appointments to refresh UI
+    } else {
+      showNotification('Failed to remove appointment: ' + data.message, 'error');
+    }
+  } catch (error) {
+    console.error('Error removing appointment:', error);
+    showNotification('Error removing appointment', 'error');
+  }
+}
     // Appointment Management
     async function loadAppointments() {
       try {
@@ -686,6 +707,10 @@ function emitTyping() {
                    <button class="btn btn-success" onclick="startChatWithPatient('${appointment.user_email}', '${appointment.user_name || ''}')">
       <i class="fas fa-comments"></i> Chat
     </button>
+     <button class="btn btn-warning" onclick="hideAppointment(${appointment.id})">
+    <i class="fas fa-eye-slash"></i> Remove
+  </button>
+    
                 ` : ''}
               </div>
             `;

@@ -99,5 +99,27 @@
 </tr>
         {% endfor %}
     </table>
+
+    <div class="section-title">Approved Doctors</div>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Password</th>
+    <th>Specialization</th>
+    <th>Contact</th>
+  </tr>
+  {% for doc in approved_doctors %}
+  <tr>
+    <td>{{ doc.id }}</td>
+    <td>{{ doc.name }}</td>
+    <td>{{ doc.email }}</td>
+    <td>{{ doc.password }}</td>
+    <td>{{ doc.specialization }}</td>
+    <td>{{ doc.contact }}</td>
+  </tr>
+  {% endfor %}
+</table>
 </body>
 </html>

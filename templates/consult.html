@@ -647,6 +647,40 @@ let doctorEmail = null;  // 🔁 Declare globally at the top
       <img src="{{ url_for('static', filename='assets/sthethoscope.jpeg') }}" alt="Example Image">
       <span>Healthcare Portal</span>
     </a>
+     <div style="margin-left: auto; display: flex; align-items: center; gap: 10px; position: relative;">
+    <!-- Notification Button -->
+    <button id="notificationBtn" class="btn btn-outline" style="position: relative;">
+      Notifications
+      <span id="notifCount" style="
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: red;
+        color: white;
+        font-size: 12px;
+        border-radius: 50%;
+        padding: 2px 6px;
+        display: none;
+      ">0</span>
+    </button>
+
+    <!-- Notification Dropdown -->
+    <div id="notificationDropdown" style="
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+    ">
+      <!-- Notifications will be injected here -->
+    </div>
+
     <button class="btn btn-outline" id="signOutBtn">
      <a href="{{ url_for('signout') }}" class="btn">sign Out</a>
     </button>
@@ -789,6 +823,7 @@ let doctorEmail = null;  // 🔁 Declare globally at the top
   <div class="card-body" id="prescriptionsContainer" style="display: none;">
     <!-- Prescriptions will load here -->
   </div>
+  
 </div>
 
         <div class="file-upload">
@@ -805,6 +840,24 @@ let doctorEmail = null;  // 🔁 Declare globally at the top
 <iframe id="iframe5002" src="http://localhost:5002" style="display:none;"></iframe>
 
 <script>
+
+ const notificationBtn = document.getElementById('notificationBtn');
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  const notifCount = document.getElementById('notifCount');
+
+  notificationBtn.addEventListener('click', () => {
+    if (notificationDropdown.style.display === 'block') {
+      notificationDropdown.style.display = 'none';
+    } else {
+      notificationDropdown.style.display = 'block';
+      // Optionally load notifications here
+      loadNotifications();
+    }
+  });
+
+
+
+
   let userEmail = null;
   let userName = null;
 
@@ -904,6 +957,34 @@ let doctorEmail = null;  // 🔁 Declare globally at the top
     document.getElementById('startChatBtn').disabled = true;
   }
 
+async function deleteAppointment(appointmentId, element) {
+  if (!confirm('Are you sure you want to delete this appointment?')) return;
+
+  try {
+    const response = await fetch(`/delete_appointment/${appointmentId}`, { method: 'DELETE' });
+    const data = await response.json();
+
+    if (data.success) {
+      // Remove notification from UI
+      element.remove();
+
+      // Update notification count
+      let count = parseInt(document.getElementById('notifCount').textContent);
+      count--;
+      if (count > 0) {
+        document.getElementById('notifCount').textContent = count;
+      } else {
+        document.getElementById('notifCount').style.display = 'none';
+        document.getElementById('notificationDropdown').innerHTML = '<p style="padding:10px;">No notifications</p>';
+      }
+    } else {
+      alert('Failed to delete appointment: ' + data.message);
+    }
+  } catch (error) {
+    alert('Error deleting appointment.');
+    console.error(error);
+  }
+}
 
    function initializeApp() {
     if (!userEmail) {
@@ -923,9 +1004,79 @@ let doctorEmail = null;  // 🔁 Declare globally at the top
     // Initialize Socket.IO connection and the rest of your code that depends on userEmail/userName here
     initializeSocketAndApp();
    loadPrescriptions(userEmail);
+
+   loadNotifications();
     
   }
  
+
+ async function hideAppointment(appointmentId, element) {
+  if (!confirm('Are you sure you want to hide this appointment?')) return;
+
+  try {
+    const response = await fetch(`/hide_appointment/${appointmentId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: userEmail  // this should already be set globally
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      element.remove();  // remove from the UI
+    } else {
+      alert('Failed to hide appointment: ' + data.message);
+    }
+  } catch (err) {
+    console.error('Error hiding appointment:', err);
+    alert('Something went wrong!');
+  }
+}
+ async function loadNotifications() {
+  if (!userEmail) return;  // userEmail is from your window message event
+
+  try {
+    const response = await fetch(`/get_appointments_notifications?email=${encodeURIComponent(userEmail)}`);
+    const data = await response.json();
+
+    const dropdown = document.getElementById('notificationDropdown');
+    dropdown.innerHTML = ''; // Clear old notifications
+
+    if (data.success && data.appointments.length > 0) {
+      notifCount.textContent = data.appointments.length;
+      notifCount.style.display = 'inline-block';
+
+      data.appointments.forEach(app => {
+        const div = document.createElement('div');
+        div.style = 'padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; display: flex; justify-content: space-between; align-items: center;';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `
+          <strong>Doctor:</strong> ${app.doctor_name}<br>
+          <strong>Specialization:</strong> ${app.specialization}<br>
+          <strong>Date:</strong> ${app.appointment_date}<br>
+          <strong>Status:</strong> ${app.status}
+        `;
+
+       const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Hide';
+        deleteBtn.className = 'btn btn-danger btn-sm';
+        deleteBtn.style = 'margin-left: 10px;';
+        deleteBtn.onclick = () => hideAppointment(app.id, div);
+        div.appendChild(infoDiv);
+        div.appendChild(deleteBtn);
+
+        dropdown.appendChild(div);
+      });
+    } else {
+      notifCount.style.display = 'none';
+      dropdown.innerHTML = '<p style="padding:10px;">No notifications</p>';
+    }
+  } catch (err) {
+    console.error('Failed to load notifications', err);
+  }
+}
 
   function clearImagePreview() {
       document.getElementById('imagePreview').innerHTML = '';
@@ -1017,35 +1168,71 @@ function handleFileUpload(file) {
 }
 
 
-    async function loadPrescriptions(email) {
+   async function loadPrescriptions(email) {
   try {
     const response = await fetch(`/get_prescriptions?email=${encodeURIComponent(email)}`);
     const data = await response.json();
 
-    if (data.success) {
-      const container = document.getElementById('prescriptionsContainer');
-      container.innerHTML = ''; // Clear old data
+    const container = document.getElementById('prescriptionsContainer');
+    container.innerHTML = ''; // Clear old data
 
+    if (data.success && data.prescriptions.length > 0) {
       data.prescriptions.forEach(prescription => {
         const prescDiv = document.createElement('div');
         prescDiv.className = 'prescription-card';
+        prescDiv.style = `
+          border: 1px solid #ccc;
+          padding: 10px;
+          margin-bottom: 10px;
+          position: relative;
+          border-radius: 6px;
+          background-color: #f9f9f9;
+        `;
+
         prescDiv.innerHTML = `
           <h4>Prescription for Appointment #${prescription.appointment_id}</h4>
           <p><strong>Doctor:</strong> ${prescription.doctor_email}</p>
           <p><strong>Prescription:</strong> ${prescription.prescription_text}</p>
           <p><strong>Dosage Instructions:</strong> ${prescription.dosage_instructions || 'N/A'}</p>
           <p><strong>Duration:</strong> ${prescription.duration || 'N/A'}</p>
-          <hr>
+          <button class="btn btn-danger btn-sm" style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+          " onclick="deletePrescription(${prescription.id}, this)">
+            Remove
+          </button>
         `;
+
         container.appendChild(prescDiv);
       });
     } else {
-      console.error('Failed to load prescriptions:', data.message);
-      // Optionally show notification here if you have showNotification function
+      container.innerHTML = '<p>No prescriptions found.</p>';
     }
   } catch (error) {
     console.error('Error loading prescriptions:', error);
   }
+}
+
+
+function deletePrescription(prescriptionId, buttonElement) {
+  if (!confirm("Are you sure you want to delete this prescription?")) return;
+
+  fetch(`/delete_prescription/${prescriptionId}`, {
+    method: 'DELETE'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      const card = buttonElement.closest('.prescription-card');
+      if (card) card.remove(); // Instantly remove from UI
+    } else {
+      alert("Failed to delete prescription.");
+    }
+  })
+  .catch(err => {
+    console.error('Error deleting prescription:', err);
+  });
 }
   function togglePrescriptions() {
   const container = document.getElementById('prescriptionsContainer');
