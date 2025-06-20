@@ -53,7 +53,9 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-
+@app.route('/signout')
+def signout():
+    return redirect("http://localhost:5002/")
 
 @app.route('/get_specializations')
 def get_specializations():
