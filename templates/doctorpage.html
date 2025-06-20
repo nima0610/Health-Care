@@ -242,6 +242,56 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
+.prescription-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.5); /* semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.prescription-modal-content {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 600px;
+  max-width: 95%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.prescription-form-group {
+  margin-bottom: 16px;
+}
+
+.prescription-form-group label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.prescription-form-group textarea,
+.prescription-form-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.prescription-modal-actions {
+  margin-top: 20px;
+  text-align: right;
+  display: flex;
+  gap: 10px;
+}
+
+
     .background-gap {
   height: 40px;
   background: transparent; /* shows your page's blue background */
@@ -352,9 +402,7 @@
   <input type="text" id="chat-input" class="chat-input" placeholder="Type your message...">
 
   <!-- Upload file button (label) -->
-  <label for="chatFileInput" class="upload-label" title="Attach File">
-    <i class="fas fa-paperclip"></i>
-  </label>
+ 
   <input type="file" id="chatFileInput" style="display: none;" />
 
   <button class="btn btn-success" onclick="sendMessage()">
@@ -616,7 +664,7 @@ function emitTyping() {
                 ${appointment.notes ? `<p><i class="fas fa-notes-medical"></i> Notes: ${appointment.notes}</p>` : ''}
                 ${appointment.is_video_consultation ? `
                   <p><i class="fas fa-video"></i> Video Consultation</p>
-                  
+                 
                 ` : ''}
               </div>
               <div class="appointment-actions">
@@ -632,7 +680,7 @@ function emitTyping() {
                   <button class="btn btn-primary" onclick="addPrescription(${appointment.id}, '${appointment.user_email}')">
                     <i class="fas fa-prescription"></i> Add Prescription
                   </button>
-                  <button class="btn btn-info" style="display: none; onclick="scheduleFollowUp(${appointment.id}, '${appointment.user_email}')">
+                  <button class="btn btn-info"  style="display: none; onclick="scheduleFollowUp(${appointment.id}, '${appointment.user_email}')">
                     <i class="fas fa-calendar-plus"></i> Schedule Follow-up
                   </button>
                    <button class="btn btn-success" onclick="startChatWithPatient('${appointment.user_email}', '${appointment.user_name || ''}')">
@@ -723,26 +771,26 @@ function showNotification(message, type = 'success') {
     function addPrescription(appointmentId, patientEmail) {
       // Create and show prescription modal
       const modal = document.createElement('div');
-      modal.className = 'modal';
+      modal.className = 'prescription-modal';
       modal.innerHTML = `
-        <div class="modal-content">
+        <div class="prescription-modal-content">
           <h3>Add Prescription</h3>
           <form id="prescriptionForm">
-            <div class="form-group">
+            <div class="prescription-form-group">
               <label>Prescription</label>
               <textarea id="prescriptionText" required></textarea>
             </div>
-            <div class="form-group">
+            <div class="prescription-form-group">
               <label>Dosage Instructions</label>
               <textarea id="dosageInstructions"></textarea>
             </div>
-            <div class="form-group">
+            <div class="prescription-form-group">
               <label>Duration</label>
               <input type="text" id="duration" placeholder="e.g., 7 days">
             </div>
-            <div class="modal-actions">
+            <div class="prescription-modal-actions">
               <button type="submit" class="btn btn-primary">Save</button>
-              <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+              <button type="button" class="btn btn-secondary" onclick="closePrescriptionModal()">Cancel</button>
             </div>
           </form>
         </div>
@@ -773,7 +821,7 @@ function showNotification(message, type = 'success') {
           if (data.success) {
             showNotification('Prescription added successfully', 'success');
             console.log("Prescription response:", data);
-            closeModal();
+            closePrescriptionModal();
             loadAppointments();
           } else {
             showNotification(data.message || 'Failed to add prescription', 'error');
@@ -859,6 +907,14 @@ function showNotification(message, type = 'success') {
         }
       });
     }
+
+function closePrescriptionModal() {
+  const modal = document.querySelector('.prescription-modal');
+  if (modal) {
+    modal.remove();
+    document.body.style.overflow = '';
+  }
+}
 
     function closeModal() {
       const modal = document.querySelector('.modal');

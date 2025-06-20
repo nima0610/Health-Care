@@ -67,7 +67,7 @@ def get_specializations():
 def get_doctors_by_specialization():
     specialization = request.args.get('specialization')
     cur = mysql.connection.cursor()
-    cur.execute("SELECT name, email FROM doctor WHERE specialization = %s", (specialization,))
+    cur.execute("SELECT name, email FROM doctor WHERE specialization = %s AND is_approved = 1",(specialization,))
     doctors = [{'name': row[0], 'email': row[1]} for row in cur.fetchall()]
     cur.close()
     return jsonify({'doctors': doctors})
