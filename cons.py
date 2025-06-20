@@ -14,6 +14,10 @@ import json
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
+CHAT_UPLOADS = os.path.join(os.getcwd(), 'chat_uploads')
+os.makedirs(CHAT_UPLOADS, exist_ok=True)
+
+
 @socketio.on('join')
 def on_join(data):
     room = data['room']
@@ -95,9 +99,9 @@ def too_large(error):
         'message': 'File is too large. Maximum size is 16MB'
     }), 413
 
-@app.route('/uploads/<filename>')
+@app.route('/chat_uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(CHAT_UPLOADS, filename)
 
 @app.route('/')
 def first_index():

@@ -576,6 +576,11 @@
   </style>
 
   <script>
+
+
+let doctorEmail = null;  // 🔁 Declare globally at the top
+
+
     async function loadDoctors() {
        console.log('loadDoctors called');
         console.log('loadDoctors triggered');
@@ -926,44 +931,64 @@
       document.getElementById('imagePreview').innerHTML = '';
       document.getElementById('chatFileInput').value = '';
     }
-
-    function handleFileUpload(file) {
+function handleFileUpload(file) {
   const formData = new FormData();
   formData.append('file', file);
 
-  // Show a loading or status message if you want
   const chatMessages = document.getElementById('chatMessages');
   chatMessages.innerHTML += `
     <div class="message system">Uploading file: ${file.name}...</div>
   `;
 
-  fetch('/upload', {
+  fetch('/chat/upload', {
     method: 'POST',
     body: formData
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Upload failed');
-    }
-    return response.json(); // assume server returns { fileUrl: "...", message: "..." }
-  })
-  .then(data => {
-    console.log('File uploaded:', data);
-    
-    // You can display a message or file link in chat
-    chatMessages.innerHTML += `
-      <div class="message sent">
-        File uploaded: <a href="${data.fileUrl}" target="_blank">${file.name}</a>
-      </div>
-    `;
-  })
-  .catch(error => {
-    console.error('Error uploading file:', error);
-    chatMessages.innerHTML += `
-      <div class="error-message">File upload failed: ${error.message}</div>
-    `;
-  });
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      return response.json(); // { success: true, file_path: "...", message: "..." }
+    })
+    .then(data => {
+      console.log('File uploaded:', data);
+
+      // Show message in client chat UI
+      chatMessages.innerHTML += `
+        <div class="message sent">
+          File uploaded: <a href="${data.file_path}" target="_blank">${file.name}</a>
+        </div>
+      `;
+
+      // Emit message to doctor via socket
+   const room = `${userEmail}_${currentDoctorEmail}`;
+      socket.emit('message', {
+        room: room,
+        username: userEmail,
+        message: file.name,
+        type: 'file',
+        file_path: data.file_path,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      console.log('Socket emit sent:', {
+  room,
+  username: userEmail,
+  message: file.name,
+  type: 'file',
+  file_path: data.file_path,
+  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+});
+      
+    })
+    .catch(error => {
+      console.error('Error uploading file:', error);
+      chatMessages.innerHTML += `
+        <div class="error-message">File upload failed: ${error.message}</div>
+      `;
+    });
 }
+
 
 
  function sendMessage() {
@@ -1256,6 +1281,8 @@
         
         if (data.success) {
           const reportsGrid = document.getElementById('reportsList');
+          if (!reportsGrid) return; // stop if element missing
+
           reportsGrid.innerHTML = '';
           
           data.reports.forEach(report => {
@@ -1297,19 +1324,6 @@
     document.getElementById('chatFileInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const preview = document.getElementById('imagePreview');
-            preview.innerHTML = `
-              <img src="${e.target.result}" class="image-preview">
-              <button class="btn btn-danger" onclick="clearImagePreview()">
-                <i class="fas fa-times"></i> Cancel
-              </button>
-            `;
-          }
-          reader.readAsDataURL(file);
-        }
         handleFileUpload(file);
       }
        
